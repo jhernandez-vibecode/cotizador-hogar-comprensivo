@@ -189,6 +189,12 @@
 
   <!-- ===================== UPLOAD STATE ===================== -->
   <section id="upload" class="fade-in">
+    <div id="agentNudge" class="hidden mb-4 rounded-xl bg-[#eff6ff] border border-[#bfdbfe] px-4 py-3 flex items-center gap-3 soft">
+      <span class="text-[20px] flex-none">👋</span>
+      <div class="flex-1 text-[12.5px] text-[#0c4a6e] leading-snug"><b>¿Sos otro agente?</b> Configurá tus datos para que las cotizaciones salgan <b>a tu nombre</b> — correo, firma, licencia SUGESE y WhatsApp.</div>
+      <button onclick="openSettings()" class="px-3 py-2 rounded-lg text-white font-semibold text-[12.5px] grad-bar hover:brightness-110 transition whitespace-nowrap flex-none">Configurar mis datos</button>
+      <button onclick="dismissNudge()" aria-label="Cerrar" class="text-slate-400 hover:text-slate-600 text-[18px] leading-none px-1 flex-none">×</button>
+    </div>
     <div class="grid lg:grid-cols-[1.1fr_.9fr] gap-5 items-stretch">
       <div class="card soft p-6 sm:p-8 flex flex-col">
         <div class="flex items-center gap-2 mb-1">
@@ -1302,14 +1308,20 @@ function closeSettings(){ document.getElementById('settingsModal').classList.add
 function saveSettings(){
   const a={ name:document.getElementById('sName').value.trim(), email:document.getElementById('sEmail').value.trim(),
     lic:document.getElementById('sLic').value.trim(), wa:document.getElementById('sWa').value.trim(), web:document.getElementById('sWeb').value.trim() };
+  if(!a.name || !a.email){ alert('El nombre y el correo del agente son obligatorios.'); return; }
   localStorage.setItem('hogar_agent', JSON.stringify(a));
-  applyAgentHeader(); if(S.data){ renderDoc(); renderMail(); } closeSettings();
+  applyAgentHeader(); checkAgentSetup(); if(S.data){ renderDoc(); renderMail(); } closeSettings();
+  showToast('Datos del agente guardados. Tus cotizaciones saldrán a tu nombre.','success');
 }
 function applyAgentHeader(){ document.getElementById('hdrAgentName').textContent=A('name'); document.getElementById('hdrAgentLic').textContent='Lic. SUGESE '+A('lic'); }
+/* Aviso de bienvenida para agentes que aún no configuraron sus datos */
+function checkAgentSetup(){ const has=!!localStorage.getItem('hogar_agent'); const n=document.getElementById('agentNudge'); if(n) n.classList.toggle('hidden', has); }
+function dismissNudge(){ const n=document.getElementById('agentNudge'); if(n) n.classList.add('hidden'); }
 
 /* init */
 applyAgentHeader();
 initStats();
+checkAgentSetup();
 </script>
 </body>
 </html>
