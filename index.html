@@ -150,7 +150,7 @@
         <div class="font-head font-extrabold tracking-tight text-[15px] sm:text-[16px]">
           Cotizador <span class="grad-text">Hogar Comprensivo</span>
         </div>
-        <div class="text-[11px] text-white/70 font-medium">Seguros Digitales · SDI &nbsp;·&nbsp; producto del INS</div>
+        <div class="text-[11px] text-white/70 font-medium">Seguros del INS</div>
       </div>
     </div>
 
@@ -355,6 +355,7 @@
                 <div class="text-[10.5px] text-slate-400 italic mb-5">La prima incluye el IVA (Ley 9635).</div>
                 <div class="text-[11px] font-bold uppercase tracking-wide text-slate-400 mb-2">Deducibles por cobertura</div>
                 <div id="docDed" class="space-y-2.5"></div>
+                <div id="docAsist" class="mt-5"></div>
                 <div class="mt-5 pt-4 border-t border-[var(--line)] flex items-center justify-between text-[11px]">
                   <div class="text-slate-500"><b id="docAgent" class="text-[var(--navy)]">Juan Carlos Hernández</b> · <span id="docLic">Lic. SUGESE 08-1318</span></div>
                   <div class="text-slate-400">Seguros Digitales · SDI</div>
@@ -505,6 +506,23 @@ const COV = {
   S:{icon:'✨', nombre:'Multiasistencia Hogar extendida', linea:'Servicios de asistencia ampliados, incluso para mascotas y asistencia médica o de viaje.'}
 };
 function covInfo(code){ return COV[code] || {icon:'🛡️', nombre:'Cobertura '+code, linea:'Cobertura incluida en su póliza.'}; }
+
+/* Beneficios de Multiasistencia Hogar (del contrato). ext:true = solo Plan Extendido (Cobertura S) */
+const ASIST = [
+  {ic:'🔧', n:'Fontanería de emergencia', d:'Rotura de tuberías y llaves, con detección de fugas.', ext:false},
+  {ic:'🔑', n:'Cerrajería de emergencia', d:'Pérdida o robo de llaves y daño de cerraduras.', ext:false},
+  {ic:'💡', n:'Electricidad de emergencia', d:'Cortocircuito o falla eléctrica interna; restablece el suministro.', ext:false},
+  {ic:'🪟', n:'Rotura de cristales', d:'Mano de obra para reponer vidrios de puertas y ventanas al exterior.', ext:false},
+  {ic:'🏥', n:'Traslado a cita médica', d:'Transporte a tu cita médica programada, desde tu casa.', ext:false},
+  {ic:'✈️', n:'Traslado al aeropuerto', d:'Ida y vuelta entre tu casa y el aeropuerto.', ext:false},
+  {ic:'🚿', n:'Destape de cañerías', d:'Libera las cañerías obstruidas.', ext:true},
+  {ic:'🚪', n:'Portones eléctricos', d:'Reparación de emergencia por cables o poleas.', ext:true},
+  {ic:'🚰', n:'Instalación de grifería', d:'Mano de obra para cambiar grifos o llaves.', ext:true}
+];
+/* Plan según las coberturas leídas del PDF: 'S' extendida, si no 'T' básica (gratis con V+D) */
+function asistPlan(){ const codes=(S.data&&S.data.coberturas||[]).map(c=>c.code); return codes.indexOf('S')>-1?'S':'T'; }
+function asistList(){ const ext=asistPlan()==='S'; return ASIST.filter(a=>ext||!a.ext); }
+function asistTitulo(){ return asistPlan()==='S' ? 'Multiasistencia Hogar Extendida — incluida' : 'Multiasistencia Hogar — incluida'; }
 
 /* Formas de pago — orden canónico y cuáles vienen marcadas por defecto */
 const PAY_ORDER = ['anual','semestral','cuatrimestral','trimestral','bimestral','mensual','deduccion'];
@@ -888,6 +906,12 @@ function renderDoc(){
       <div class="font-semibold text-[12px] text-[var(--navy)] mb-.5">${info.icon} ${esc(info.nombre)}</div>
       <div class="ded-text">${esc(d.deducibles[code])}</div></div>`; }); }
   else dd.innerHTML='<div class="text-[12px] text-slate-400">Ver detalle de deducibles en el PDF adjunto.</div>';
+  // asistencia (adaptable: T básica / S extendida)
+  const da=document.getElementById('docAsist');
+  da.innerHTML=`<div class="rounded-xl overflow-hidden border border-[var(--line)]">
+    <div class="grad-bar text-white px-4 py-3"><div class="font-head font-bold text-[13px]">🛠️ ${asistTitulo()}</div>
+      <div class="text-white/80 text-[11px]">Una llamada al 800-800-8001 · 365 días · App INS Móvil y WhatsApp</div></div>
+    <div class="p-3 grid grid-cols-2 gap-2.5">${asistList().map(a=>`<div class="flex items-start gap-2"><span class="text-[15px] leading-none">${a.ic}</span><div class="text-[11.5px] leading-tight"><b class="text-[var(--navy)]">${esc(a.n)}</b><div class="text-slate-500">${esc(a.d)}</div></div></div>`).join('')}</div></div>`;
 }
 
 function emailSubject(){ return 'Su cotización de Hogar Comprensivo — INS · SDI 🏡'; }
@@ -915,6 +939,10 @@ function buildEmailHTML(){
       <div style="color:#475569;font-size:12px;line-height:1.5;white-space:pre-line">${esc(d.deducibles[code])}</div></div>`; }).join('');
   const covCards=covList.map(c=>{ const info=COV[c.code];
     return `<tr><td style="padding:6px 0;vertical-align:top;width:26px;font-size:16px">${info.icon}</td><td style="padding:6px 0;font-size:13px;color:#334155"><b style="color:#0c2340">${esc(info.nombre)}</b> — ${esc(info.linea)}</td></tr>`; }).join('');
+  const asistBlock=`<tr><td style="padding:18px 28px 4px"><table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f9ff;border-left:4px solid #0369a1;border-radius:10px"><tr><td style="padding:14px 16px">
+    <div style="font-family:'Sora',Arial,sans-serif;font-weight:700;color:#0c2340;font-size:14px;margin-bottom:6px">🛠️ ${esc(asistTitulo())}</div>
+    <div style="font-size:12.5px;color:#334155;line-height:1.8">${asistList().map(a=>a.ic+' '+esc(a.n)).join(' &nbsp;·&nbsp; ')}<br><span style="color:#64748b">Una llamada al <b style="color:#0c2340">800-800-8001</b> (365 días) y el INS coordina y paga el servicio.</span></div>
+  </td></tr></table></td></tr>`;
   const waLink = waDigits()? ('https://wa.me/506'+waDigits()) : '#';
   const notaBlock = nota? `<tr><td style="padding:0 28px 4px"><table width="100%" cellpadding="0" cellspacing="0" style="background:#fff7ed;border-left:4px solid #f59e0b;border-radius:8px"><tr><td style="padding:12px 14px;font-size:13px;color:#7c2d12;line-height:1.55">${esc(nota).replace(/\n/g,'<br>')}</td></tr></table></td></tr>` : '';
 
@@ -943,6 +971,8 @@ function buildEmailHTML(){
   <tr><td style="padding:18px 28px 4px">
     <div style="font-weight:700;color:#0c2340;font-size:14px;margin-bottom:8px">🛡️ Deducibles por cobertura</div>
     ${dedRows||'<div style="font-size:12.5px;color:#64748b">Ver el detalle de deducibles en el PDF adjunto.</div>'}</td></tr>
+
+  ${asistBlock}
 
   ${notaBlock}
 
