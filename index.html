@@ -417,7 +417,7 @@
 
 <!-- ===================== SETTINGS MODAL ===================== -->
 <div id="settingsModal" class="hidden"><div class="fixed inset-0 bg-[#0c2340]/55 backdrop-blur-sm flex items-center justify-center p-4 z-50" onclick="if(event.target===this)closeSettings()">
-  <div class="card soft p-6 pop" style="max-width:460px;width:100%">
+  <div class="card soft p-6 pop" style="max-width:460px;width:100%;max-height:90vh;overflow:auto">
     <div class="flex items-center justify-between mb-4"><div class="font-head font-extrabold text-[17px] text-[var(--navy)]">Datos del agente</div>
       <button onclick="closeSettings()" class="text-slate-400 hover:text-slate-600 text-[20px] leading-none">×</button></div>
     <div class="space-y-3">
@@ -433,6 +433,32 @@
       </div>
       <label class="block"><span class="text-[11px] font-semibold text-slate-500">Sitio web</span>
         <input id="sWeb" type="text" class="mt-1 w-full px-3 py-2 rounded-lg border border-[var(--line)] text-[13px] ring-focus"></label>
+
+      <div class="pt-2 border-t border-[var(--line)]">
+        <div class="text-[12.5px] font-bold text-[var(--navy)]">Documentos personalizados <span class="font-normal text-slate-400">(opcional)</span></div>
+        <p class="text-[11px] text-slate-500 leading-snug mt-1">Subí tu <b>Deber de Información</b> y tu <b>Información Previa</b> con tus datos. Reemplazan a los formularios genéricos en <b>todas tus cotizaciones</b>. Solo PDF, hasta 1.5 MB c/u. Se guardan solo en este navegador.</p>
+        <div class="mt-2.5 space-y-2">
+
+          <div class="rounded-xl border border-[var(--line)] bg-[#f8fafc] px-3 py-2.5">
+            <div class="text-[11.5px] font-semibold text-[var(--navy)]">Deber de Información</div>
+            <div id="sDocStatus_deber" class="text-[11px] text-slate-500 mt-0.5">Usando el formulario genérico.</div>
+            <div class="flex items-center gap-2 mt-1.5">
+              <label class="px-2.5 py-1.5 rounded-lg border border-[var(--line)] bg-white text-[11.5px] font-semibold text-[var(--navy)] cursor-pointer hover:bg-slate-50 transition">📎 Elegir PDF<input type="file" accept="application/pdf,.pdf" class="hidden" onchange="onDocPick('deber',this)"></label>
+              <button type="button" id="sDocClear_deber" onclick="clearDoc('deber')" class="hidden px-2.5 py-1.5 rounded-lg border border-[#fecaca] bg-white text-[11.5px] font-semibold text-[#dc2626] hover:bg-[#fef2f2] transition">Quitar</button>
+            </div>
+          </div>
+
+          <div class="rounded-xl border border-[var(--line)] bg-[#f8fafc] px-3 py-2.5">
+            <div class="text-[11.5px] font-semibold text-[var(--navy)]">Información Previa al Perfeccionamiento del Contrato</div>
+            <div id="sDocStatus_previa" class="text-[11px] text-slate-500 mt-0.5">Usando el formulario genérico.</div>
+            <div class="flex items-center gap-2 mt-1.5">
+              <label class="px-2.5 py-1.5 rounded-lg border border-[var(--line)] bg-white text-[11.5px] font-semibold text-[var(--navy)] cursor-pointer hover:bg-slate-50 transition">📎 Elegir PDF<input type="file" accept="application/pdf,.pdf" class="hidden" onchange="onDocPick('previa',this)"></label>
+              <button type="button" id="sDocClear_previa" onclick="clearDoc('previa')" class="hidden px-2.5 py-1.5 rounded-lg border border-[#fecaca] bg-white text-[11.5px] font-semibold text-[#dc2626] hover:bg-[#fef2f2] transition">Quitar</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
     <button onclick="saveSettings()" class="w-full mt-5 px-4 py-2.5 rounded-xl text-white font-semibold text-[13.5px] grad-bar hover:brightness-110 transition">Guardar</button>
   </div>
@@ -534,11 +560,23 @@ const PAY_HINT  = { anual:'1 pago al año', semestral:'cada 6 meses', cuatrimest
 /* Documentos requisito (se adjuntan y se listan en el correo) */
 const REQUISITOS = [
   { url:'requisitos/1-solicitud-hogar-comprensivo.pdf',  file:'1. Solicitud Hogar Comprensivo.pdf',           nombre:'Solicitud del Seguro Hogar Comprensivo' },
-  { url:'requisitos/2-deber-de-informacion.pdf',         file:'2. Deber de Informacion.pdf',                  nombre:'Deber de Información' },
-  { url:'requisitos/3-informacion-previa-contrato.pdf',  file:'3. Informacion Previa al Contrato.pdf',         nombre:'Información Previa al Perfeccionamiento del Contrato' },
+  { url:'requisitos/2-deber-de-informacion.pdf',         file:'2. Deber de Informacion.pdf',                  nombre:'Deber de Información', key:'deber' },
+  { url:'requisitos/3-informacion-previa-contrato.pdf',  file:'3. Informacion Previa al Contrato.pdf',         nombre:'Información Previa al Perfeccionamiento del Contrato', key:'previa' },
   { url:'requisitos/4-comprobante-entrega-documentos.pdf',file:'4. Comprobante de Entrega de Documentos.pdf',  nombre:'Comprobante de Entrega de Documentos' },
   { url:'requisitos/5-conozca-a-su-cliente.pdf',         file:'5. Conozca a su Cliente.pdf',                  nombre:'Formulario «Conozca a su Cliente»' }
 ];
+
+/* Documentos que cada agente puede personalizar: si el agente sube el suyo, reemplaza
+   al genérico del repo en el correo (mismo nombre de archivo). Se guardan en localStorage. */
+const DOCS_PERSONALIZABLES = [
+  { key:'deber',  label:'Deber de Información' },
+  { key:'previa', label:'Información Previa al Perfeccionamiento del Contrato' }
+];
+const DOC_MAX_BYTES = 1.5 * 1024 * 1024; // 1.5 MB por documento (localStorage tiene tope)
+function b64ToU8(b64){ const bin=atob(b64); const u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); return u; }
+function agentDoc(key){ const a=agent(); return (a.docs && a.docs[key]) || null; }
+function personalizedCount(){ return DOCS_PERSONALIZABLES.reduce((n,d)=>n+(agentDoc(d.key)?1:0),0); }
+function fmtKB(b){ return b>=1048576 ? (b/1048576).toFixed(1)+' MB' : Math.round(b/1024)+' KB'; }
 
 /* ============================================================
    HELPERS
@@ -782,6 +820,12 @@ function buildMIMEMulti({to,from,subject,html,attachments}){
 async function fetchRequisitos(){
   const out=[];
   for(const r of REQUISITOS){
+    // Si el agente subió su versión personalizada de este documento, se usa en lugar del genérico.
+    const pers = r.key ? agentDoc(r.key) : null;
+    if(pers && pers.b64){
+      try{ out.push({ bytes:b64ToU8(pers.b64), filename:r.file }); continue; }
+      catch(e){ /* si el decode falla, cae al genérico del repo */ }
+    }
     try{ const res=await fetch(r.url); if(res.ok){ out.push({ bytes:new Uint8Array(await res.arrayBuffer()), filename:r.file }); } }
     catch(e){ /* si falta uno, se omite y se sigue */ }
   }
@@ -1004,7 +1048,8 @@ function renderMail(){
   document.getElementById('mailTo').textContent = document.getElementById('fEmail').value || '— (escribí el correo del cliente)';
   document.getElementById('mailSubject').textContent = emailSubject();
   const inc=document.getElementById('fIncReq').checked;
-  document.getElementById('mailAttach').textContent = inc ? ('📎 '+(1+REQUISITOS.length)+' adjuntos · cotización + 5 requisitos') : ('📄 '+attachName());
+  const pc=personalizedCount();
+  document.getElementById('mailAttach').textContent = inc ? ('📎 '+(1+REQUISITOS.length)+' adjuntos · cotización + 5 requisitos'+(pc?(' · '+pc+' personalizado'+(pc>1?'s':'')):'')) : ('📄 '+attachName());
   // preview a escala dentro del panel
   const wrap=document.getElementById('mailPreview');
   wrap.innerHTML='<div style="transform:scale(.92);transform-origin:top center">'+buildEmailHTML()+'</div>';
@@ -1338,17 +1383,50 @@ function initStats(){
 /* ============================================================
    SETTINGS (localStorage)
    ============================================================ */
+/* Staging de los documentos personalizados mientras el modal está abierto.
+   Cada valor es null (usar genérico) o { name, size, b64 }. */
+let DOCS_STAGE = { deber:null, previa:null };
+
 function openSettings(){
   document.getElementById('sName').value=A('name'); document.getElementById('sEmail').value=A('email');
   document.getElementById('sLic').value=A('lic'); document.getElementById('sWa').value=A('wa'); document.getElementById('sWeb').value=A('web');
+  const a=agent(); DOCS_STAGE={};
+  DOCS_PERSONALIZABLES.forEach(d=>{ DOCS_STAGE[d.key] = (a.docs && a.docs[d.key]) ? Object.assign({},a.docs[d.key]) : null; renderDocSlot(d.key); });
   document.getElementById('settingsModal').classList.remove('hidden');
 }
 function closeSettings(){ document.getElementById('settingsModal').classList.add('hidden'); }
+
+async function onDocPick(key, input){
+  const f = input.files && input.files[0]; if(!f){ return; }
+  if((f.type && f.type.indexOf('pdf')<0) && !/\.pdf$/i.test(f.name)){ alert('El archivo debe ser un PDF.'); input.value=''; return; }
+  if(f.size > DOC_MAX_BYTES){ alert('El PDF pesa '+fmtKB(f.size)+' y el máximo es 1.5 MB. Usá una versión más liviana.'); input.value=''; return; }
+  try{
+    const buf = new Uint8Array(await f.arrayBuffer());
+    DOCS_STAGE[key] = { name:f.name, size:f.size, b64:u8ToB64(buf) };
+  }catch(e){ alert('No se pudo leer el PDF. Probá de nuevo.'); }
+  input.value=''; renderDocSlot(key);
+}
+function clearDoc(key){ DOCS_STAGE[key]=null; renderDocSlot(key); }
+function renderDocSlot(key){
+  const st=document.getElementById('sDocStatus_'+key), clr=document.getElementById('sDocClear_'+key);
+  if(!st) return;
+  const doc=DOCS_STAGE[key];
+  if(doc){ st.innerHTML='✅ <b class="text-[var(--navy)]">'+esc(doc.name)+'</b> · '+fmtKB(doc.size); st.className='text-[11px] text-[#15803d] mt-0.5 break-all'; if(clr) clr.classList.remove('hidden'); }
+  else{ st.textContent='Usando el formulario genérico.'; st.className='text-[11px] text-slate-500 mt-0.5'; if(clr) clr.classList.add('hidden'); }
+}
+
 function saveSettings(){
   const a={ name:document.getElementById('sName').value.trim(), email:document.getElementById('sEmail').value.trim(),
     lic:document.getElementById('sLic').value.trim(), wa:document.getElementById('sWa').value.trim(), web:document.getElementById('sWeb').value.trim() };
   if(!a.name || !a.email){ alert('El nombre y el correo del agente son obligatorios.'); return; }
-  localStorage.setItem('hogar_agent', JSON.stringify(a));
+  const docs={}; DOCS_PERSONALIZABLES.forEach(d=>{ if(DOCS_STAGE[d.key] && DOCS_STAGE[d.key].b64) docs[d.key]=DOCS_STAGE[d.key]; });
+  if(Object.keys(docs).length) a.docs=docs;
+  try{
+    localStorage.setItem('hogar_agent', JSON.stringify(a));
+  }catch(e){
+    alert('No se pudieron guardar los documentos personalizados: el navegador se quedó sin espacio. Probá con PDFs más livianos o quitá uno.');
+    return;
+  }
   applyAgentHeader(); checkAgentSetup(); if(S.data){ renderDoc(); renderMail(); } closeSettings();
   showToast('Datos del agente guardados. Tus cotizaciones saldrán a tu nombre.','success');
 }
