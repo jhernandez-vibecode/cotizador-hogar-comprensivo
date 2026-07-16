@@ -473,6 +473,7 @@
     </div>
     <div class="px-6 py-5">
       <p class="text-[12.5px] text-slate-500 mb-4 leading-snug">Conversión y embudo de tus cotizaciones de Hogar Comprensivo enviadas desde este navegador. Marcá el estado de cada una (Agendada con su cita, Concretada o Desechada). Datos privados, solo en este navegador.</p>
+      <p class="text-[12px] text-amber-800 bg-amber-50 border border-amber-200 border-l-[3px] border-l-amber-500 rounded-r-lg px-3 py-2 mb-4 leading-snug"><strong>Respaldo:</strong> un limpiador de disco o "borrar datos de navegación" elimina este historial sin aviso y sin vuelta atrás. Use <strong>⬇ Respaldar</strong> (abajo) cada cierto tiempo: el archivo es lo único que no depende del navegador.</p>
       <div class="stats-kpis" id="statsKpis"></div>
       <div class="stats-section-title">Por mes <span class="stats-hint">— clic en un mes para filtrar</span></div>
       <div class="stats-months" id="statsMonths"></div>
@@ -486,7 +487,11 @@
       <div class="stats-filters" id="statsFilters"></div>
       <div id="statsList"></div>
     </div>
-    <div class="px-6 py-4 border-t border-[var(--line)] flex justify-end">
+    <div class="px-6 py-4 border-t border-[var(--line)] flex justify-between items-center gap-3 flex-wrap">
+      <div class="flex gap-2 flex-wrap">
+        <button onclick="exportarRespaldo()" title="Descarga un archivo con todo el historial" class="px-4 py-2.5 rounded-xl font-semibold text-[13px] bg-amber-500 text-white hover:brightness-110 transition">⬇ Respaldar</button>
+        <button onclick="pedirArchivoRespaldo()" title="Restaura el historial desde un archivo de respaldo" class="px-4 py-2.5 rounded-xl font-semibold text-[13px] bg-white border border-[var(--line)] text-slate-600 hover:border-slate-400 transition">⬆ Importar</button>
+      </div>
       <button onclick="closeStats()" class="px-5 py-2.5 rounded-xl text-white font-semibold text-[13.5px] grad-bar hover:brightness-110 transition">Salir</button>
     </div>
   </div>
@@ -1264,6 +1269,63 @@ async function sendFollowUpHogar(id, btn){
   try{ await getToken(); await sendOneFollowUpHogar(e); showToast('Seguimiento enviado a '+(e.client||e.email)+'.','success'); renderStats(); updateStatsBadge(); }
   catch(err){ showToast('No se pudo enviar: '+err.message,'error'); }
   finally{ btn.disabled=false; btn.textContent=orig; }
+}
+
+/* ---- respaldo del historial (exportar / importar JSON) ----
+   El historial vive en localStorage y cualquier limpiador de disco lo borra sin
+   aviso. El archivo JSON es lo único que no depende del navegador. */
+function exportarRespaldo(){
+  const hist=loadHist();
+  if(!hist.length){ showToast('No hay cotizaciones que respaldar'); return; }
+  const data={ app:'cotizador-hogar-comprensivo', version:1, exportadoEl:new Date().toISOString(), historial:hist };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='hogar-respaldo-'+new Date().toISOString().slice(0,10)+'.json'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  showToast(hist.length+(hist.length===1?' cotización respaldada':' cotizaciones respaldadas'),'success');
+}
+
+function importarRespaldo(file){
+  const reader=new FileReader();
+  reader.onload=()=>{
+    let data;
+    try{ data=JSON.parse(reader.result); }
+    catch(e){ showToast('El archivo no es un respaldo válido','error'); return; }
+    const lista=Array.isArray(data)?data:(data&&Array.isArray(data.historial)?data.historial:null);
+    if(!lista){ showToast('El archivo no contiene un historial de Hogar Comprensivo','error'); return; }
+
+    const hist=loadHist();
+    const ids=new Set(hist.map(h=>h&&h.id));
+    const nuevos=lista.filter(r=>r&&r.id&&!ids.has(r.id));
+    if(!nuevos.length){ showToast('El respaldo no trae nada nuevo'); return; }
+
+    // El historial se trunca a HIST_MAX al guardar. Si el import lo excede, avisar
+    // cuántas quedan fuera en vez de descartarlas en silencio.
+    const total=hist.length+nuevos.length;
+    const sobran=Math.max(0,total-HIST_MAX);
+    const msg='El respaldo trae '+nuevos.length+' cotizaciones que no están en el historial.'+
+      (sobran?'\n\nATENCIÓN: el historial guarda un máximo de '+HIST_MAX+'. Se conservarán las '+HIST_MAX+
+       ' más recientes y quedarán fuera '+sobran+' de las más antiguas.':'')+'\n\n¿Agregarlas?';
+    if(!confirm(msg)) return;
+
+    const merged=hist.concat(nuevos)
+      .sort((a,b)=>String((b&&b.date)||'').localeCompare(String((a&&a.date)||'')));
+    if(merged.length>HIST_MAX) merged.length=HIST_MAX;
+    saveHistArr(merged);
+    if(typeof renderStats==='function') renderStats();
+    if(typeof updateStatsBadge==='function') updateStatsBadge();
+    showToast((nuevos.length-sobran)+' cotizaciones importadas','success');
+  };
+  reader.onerror=()=>showToast('No se pudo leer el archivo','error');
+  reader.readAsText(file);
+}
+
+function pedirArchivoRespaldo(){
+  const inp=document.createElement('input');
+  inp.type='file'; inp.accept='application/json,.json';
+  inp.addEventListener('change',()=>{ if(inp.files&&inp.files[0]) importarRespaldo(inp.files[0]); });
+  inp.click();
 }
 
 /* ---- toast ---- */
