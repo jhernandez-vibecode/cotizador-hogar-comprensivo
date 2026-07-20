@@ -11,9 +11,21 @@ App web de un solo archivo (`index.html`) para cotizar el seguro **Hogar Compren
 6. **Envía por Gmail** la cotización limpia + los 5 requisitos (6 adjuntos, ~5 MB).
 7. **Control de lo cotizado (📊):** módulo de estadísticas replicado del Cotizador Autos. Cada envío se guarda (localStorage) con su ciclo de vida **Pendiente → Agendada (con fecha de cita) → Concretada / Desechada**. Incluye KPIs (Enviadas / Agendadas / Concretadas / Desechadas / **Conversión %**), desglose por mes, búsqueda (cliente/cédula/consecutivo), filtros (**Todas / ⭐ Alto valor ≥₡100M / ⏳ Para seguir +3 d**), seguimiento por **WhatsApp** y por **correo** (un solo seguimiento), badge con la cantidad pendiente de seguir, y borrado de registros. Datos privados, solo en ese navegador.
 
+## Módulo `/poliza/` — Envío de Póliza Activa
+
+Segunda plataforma del repo (sub-página `poliza/index.html`, gemela del `/polizas-activas/` del Cotizador Autos), para pólizas Hogar **ya emitidas** (no cotizaciones). Se llega con el botón **📨** del header del cotizador.
+
+1. El agente **carga las Condiciones Particulares** de la póliza emitida (forma `081_81B`) + opcionalmente **condiciones especiales** (gas/solar/VE/desocupado) y el **comprobante de pago** — todo se adjunta.
+2. La app **extrae** con pdf.js: N° de póliza, cliente, cédula, ubicación, vigencia, forma de pago, suma asegurada y **coberturas** (con o sin cobertura S de Multiasistencia Extendida). Soporta los **dos layouts** del formato 081_81B: el viejo (tabla con % + prima) y el nuevo de jul-2026 (tabla "Coberturas y sumas aseguradas", solo suma). El formato nuevo trae el correo del cliente → se autocompleta.
+3. Se adjuntan **2 documentos fijos genéricos** (carpeta `emision/`): **Condiciones Generales V17** + **Condiciones de Multiasistencia**. Base = 3 adjuntos.
+4. Arma un **correo de "póliza activa"** (solo texto + color, sin imágenes): confirmación de póliza vigente + **resumen de coberturas** + **Multiasistencia destacada** (6 servicios básico / 9 extendido según cobertura S) + documentación adjunta + firma del agente.
+5. **Envía por Gmail** (mismo Client ID; `/poliza/` es mismo origen que el cotizador → no requiere cambios en Google Cloud).
+
+> **Privacidad:** el `.gitignore` excluye `Documentos emision/` y `_localtest/` (pólizas de muestra con datos de clientes reales). En este repo público solo van los 2 documentos genéricos de `emision/` y datos de demo ficticios.
+
 ## Stack
-- HTML/CSS/JS vanilla, un solo archivo. Sin build.
-- CDN: Tailwind, Google Fonts (Sora + Inter), **pdf.js** (extracción), **pdf-lib** (limpieza), **Google Identity Services** (envío Gmail).
+- HTML/CSS/JS vanilla, un solo archivo por página. Sin build.
+- CDN: Tailwind, Google Fonts (Sora + Inter), **pdf.js** (extracción), **pdf-lib** (limpieza, solo el cotizador), **Google Identity Services** (envío Gmail).
 - Sin backend. El envío usa Gmail API directo desde el navegador (mismo Client ID compartido con los otros cotizadores SDI).
 
 ## Despliegue (Netlify)
