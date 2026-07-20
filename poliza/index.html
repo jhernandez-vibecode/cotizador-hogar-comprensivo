@@ -344,9 +344,10 @@ function extractFromRows(rows){
     suma:null, modalidad:'', coberturas:[], correo:''
   };
   // Tomador / Asegurado + cédula
-  let m = t.match(/Nombre del Tomador:\s*(.+?)\s*N[°º]?\s*Identificaci[oó]n:\s*([0-9]+)/i)
-       || t.match(/Nombre o Raz[oó]n Social:\s*(.+?)\s*N[°º]?\s*Identificaci[oó]n:\s*([0-9]+)/i)
-       || t.match(/Nombre del Asegurado:\s*(.+?)\s*N[°º]?\s*Identificaci[oó]n:\s*([0-9]+)/i);
+  let m = t.match(/Nombre del Tomador:\s*(.+?)\s*N[°º]?\s*(?:de\s+)?Identificaci[oó]n:\s*([0-9]+)/i)
+       || t.match(/Nombre o Raz[oó]n Social:\s*(.+?)\s*N[°º]?\s*(?:de\s+)?Identificaci[oó]n:\s*([0-9]+)/i)
+       || t.match(/Nombre del Asegurado:\s*(.+?)\s*N[°º]?\s*(?:de\s+)?Identificaci[oó]n:\s*([0-9]+)/i)
+       || t.match(/Asegurado:\s*(.+?)\s*N[°º]?\s*(?:de\s+)?Identificaci[oó]n:\s*([0-9]+)/i);
   if(m){ d.cliente = m[1].replace(/\s+/g,' ').trim(); d.cedula = m[2]; }
   // Vigencia
   m = t.match(/Desde:?\s*(\d{2}\/\d{2}\/\d{4})\s*Hasta:?\s*(\d{2}\/\d{2}\/\d{4})/i);
@@ -355,7 +356,10 @@ function extractFromRows(rows){
   m = t.match(/Provincia:\s*([^\n]+?)\s*Cant[oó]n:\s*([^\n]+)/i); if(m){ d.provincia=m[1].trim(); d.canton=m[2].trim(); }
   m = t.match(/Distrito:\s*([^\n]+?)\s*Tipo de Ocupaci[oó]n:\s*([^\n]+)/i); if(m){ d.distrito=m[1].trim(); d.ocupacion=m[2].trim(); }
   else { m = t.match(/Distrito:\s*([^\n]+)/i); if(m) d.distrito=m[1].trim(); }
-  m = t.match(/Descripci[oó]n:\s*([^\n]+?)\s*Folio Real:/i); if(m) d.descripcion=m[1].trim().replace(/habitaci[oó]?\s*n/gi,'Habitación');
+  // formato nuevo: "Tipo de Ocupación" en fila propia, con "N° de Folio Real" al final
+  if(!d.ocupacion){ m = t.match(/Tipo de Ocupaci[oó]n:\s*([^\n]+?)(?:\s*N[°º]?\s*(?:de\s*)?Folio|$)/i); if(m) d.ocupacion=m[1].trim(); }
+  d.ocupacion = d.ocupacion.replace(/\s*N[°º]?\s*(?:de\s*)?Folio.*$/i,'').trim();
+  m = t.match(/Descripci[oó]n:\s*([^\n]+?)\s*(?:N[°º]?\s*(?:de\s*)?)?Folio Real:/i); if(m) d.descripcion=m[1].trim().replace(/habitaci[oó]?\s*n/gi,'Habitación');
   // Suma asegurada (fila de rubro) + modalidad
   m = t.match(/\n\d+\s*-\s*[^\n]*?[¢₡]\s*([\d.,   ]{5,}?)\s+[NS]\b/); if(m) d.suma=parseAmount(m[1]);
   m = t.match(/\b(Reposici[oó]n|Real Efectivo|Valor Real Efectivo|Valor Real)\b/i); if(m) d.modalidad=titleCase(m[1]);
@@ -363,19 +367,24 @@ function extractFromRows(rows){
   const mails = (t.match(/[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}/g)||[])
     .filter(e=>!/segurosdelins\.com|grupoins\.com|@ins\./i.test(e));
   if(mails.length) d.correo = mails[0];
-  // Coberturas: fila que empieza con [prefijo-]LETRA: , trae % y montos; prima = último ₡
+  // Coberturas: fila que empieza con [prefijo-]LETRA: y trae monto(s) ₡.
+  //  - Formato viejo (con % de participación): columnas Suma + Prima → prima = último ₡, suma = penúltimo.
+  //  - Formato nuevo (sin %): solo columna Suma → el ₡ es la suma, no hay prima.
+  // Escaneamos por código (V/D/S…): así se detecta S aunque su fila no traiga %.
   rows.forEach(ln=>{
     const cm = ln.match(/^(?:[0-9A-Z]{1,4}-)?([A-Z]):\s+\S/);
     if(!cm) return;
     const code = cm[1];
     if(!COV_CODES.has(code)) return;         // solo códigos válidos (excluye I.V.A., etc.)
-    if(!/%/.test(ln)) return;                // las coberturas traen participación %
-    const amts = ln.match(new RegExp(CUR+'\\s*[\\d.,\\u00a0\\u2009 ]+','g'));
-    if(!amts) return;
-    const prima = parseAmount(amts[amts.length-1]);
     if(d.coberturas.some(c=>c.code===code)) return;
+    const amts = ln.match(new RegExp(CUR+'\\s*[\\d.,\\u00a0\\u2009 ]+','g'));
+    if(!amts) return;                        // debe traer monto ₡ (excluye boilerplate tipo "COBERTURA S:")
+    const hasPct = /%/.test(ln);
+    const prima = hasPct ? parseAmount(amts[amts.length-1]) : null;
+    const suma  = hasPct ? (amts.length>=2 ? parseAmount(amts[amts.length-2]) : null)
+                         : parseAmount(amts[amts.length-1]);
     d.coberturas.push({ code, prima });
-    if(d.suma==null && amts.length>=2) d.suma = parseAmount(amts[amts.length-2]);
+    if(d.suma==null && suma && suma>0) d.suma = suma;
   });
   return d;
 }
@@ -384,7 +393,7 @@ function extractFromRows(rows){
    CLASIFICACIÓN DE ARCHIVOS (por contenido)
    ============================================================ */
 function classifyText(text){
-  if(/Detalle de Coberturas/i.test(text) && /(N[°º]?\s*de\s*P[oó]liza|Condiciones Particulares|DUPLICADO)/i.test(text)) return 'particulares';
+  if((/Detalle de Coberturas/i.test(text) || /Coberturas y sumas aseguradas/i.test(text)) && /(N[°º]?\s*de\s*p[oó]liza|Condiciones Particulares|DUPLICADO)/i.test(text)) return 'particulares';
   if(/Condiciones Especiales/i.test(text)) return 'especial';
   if(/(comprobante|recibo)[^\n]{0,50}pago|Estado (Actual )?de la Deuda|Prima\s+(Pagada|por pagar|Recaudada)/i.test(text)) return 'comprobante';
   return 'otro';
@@ -524,7 +533,7 @@ function buildEmail(fixedOk){
   const nota = ((document.getElementById('mNota')||{}).value||'').trim();
   const fam='Sora,Helvetica,Arial,sans-serif', fbody='Inter,Helvetica,Arial,sans-serif';
   const ubic = [d.provincia,d.canton].filter(Boolean).join(', ');
-  const covList = (d.coberturas||[]).filter(c=>COV[c.code]);
+  const covList = (d.coberturas||[]).filter(c=>COV[c.code] && c.code!=='T' && c.code!=='S'); // T/S = asistencia, va en su propia sección
   const covCards = covList.map(c=>{ const i=COV[c.code];
     return `<tr><td style="padding:6px 0;vertical-align:top;width:26px;font-size:16px">${i.icon}</td><td style="padding:6px 0;font-size:13px;color:#334155"><b style="color:#0c2340">${esc(i.nombre)}</b> — ${esc(i.linea)}</td></tr>`; }).join('')
     || '<tr><td style="font-size:13px;color:#334155;padding:6px 0">Ver el detalle de coberturas en las Condiciones Particulares adjuntas.</td></tr>';
