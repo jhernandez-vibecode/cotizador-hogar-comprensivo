@@ -1,0 +1,6 @@
+# Carpeta de trabajo local: pólizas de muestra con datos reales de clientes
+# (Duplicado, condiciones especiales personalizadas). NO se publican en el repo.
+Documentos emision/
+
+# Pruebas locales (no publicar)
+_localtest/

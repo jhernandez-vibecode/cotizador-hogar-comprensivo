@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="es-CR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Envío de Póliza · Hogar Comprensivo · Seguros del INS</title>
+<meta name="theme-color" content="#0c2340">
+<link rel="icon" type="image/png" href="../favicon.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root{--navy:#0c2340;--navy-2:#0f2d52;--blue:#0369a1;--blue-br:#2563eb;--teal:#0e7490;--green:#16a34a;--green-2:#10b981;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--bg:#eef2f7;--card:#ffffff}
+  *{box-sizing:border-box} html,body{margin:0;padding:0}
+  body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+    background:radial-gradient(1100px 480px at 12% -8%,rgba(3,105,161,.10),transparent 60%),radial-gradient(1000px 520px at 100% 0%,rgba(16,163,74,.10),transparent 55%),var(--bg);
+    color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh}
+  h1,h2,h3,h4,.font-head{font-family:'Sora',system-ui,sans-serif}
+  .grad-bar{background:linear-gradient(90deg,var(--navy) 0%,var(--blue) 48%,var(--green-2) 100%)}
+  .grad-text{background:linear-gradient(90deg,#bfe3ff,#bff5d6);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .ring-focus:focus-visible{outline:2px solid var(--blue-br);outline-offset:2px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px}
+  .soft{box-shadow:0 1px 2px rgba(15,23,42,.04),0 10px 30px -18px rgba(15,23,42,.25)}
+  .chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;line-height:1}
+  .chip-green{background:#dcfce7;color:#15803d}.chip-blue{background:#e0f2fe;color:#0369a1}.chip-amber{background:#fef3c7;color:#92400e}.chip-slate{background:#f1f5f9;color:#475569}
+  .inp{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:13.5px;color:var(--ink);background:#fff;font-family:inherit}
+  .inp:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(3,105,161,.12)}
+  .inp.need{border-color:#fca5a5;background:#fff5f5}
+  .lab{display:block;font-size:11.5px;font-weight:600;color:#475569;margin:0 0 4px}
+  .lab.req::after{content:" *";color:#ef4444}
+  .btn{border:none;border-radius:11px;padding:11px 18px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;transition:.15s}
+  .btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{filter:brightness(1.08)}
+  .btn-ghost{background:#eef2f7;color:#334155}.btn-ghost:hover{background:#e2e8f0}
+  .btn-send{background:linear-gradient(90deg,var(--green),var(--green-2));color:#fff;width:100%}.btn-send:hover{filter:brightness(1.05)}
+  .step{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:rgba(255,255,255,.55);cursor:pointer;background:none;border:none;font-family:inherit}
+  .step.on{color:#fff}
+  .step-dot{width:22px;height:22px;border-radius:999px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+  .step.on .step-dot{background:#fff;color:var(--navy)}
+  .step-sep{width:20px;height:1px;background:rgba(255,255,255,.25)}
+  .dz{border:2px dashed #94a3b8;border-radius:18px;transition:.2s;background:#fff;cursor:pointer}
+  .dz.hot{border-color:var(--green);background:#f0fdf6}
+  .doc{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:11px;margin-bottom:8px;background:#fff}
+  .doc .nm{font-size:12.5px;font-weight:600;color:var(--navy);word-break:break-word;line-height:1.3}
+  .doc .mt{font-size:10.5px;color:var(--muted)}
+  .badge{font-size:9.5px;font-weight:700;padding:3px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+  .badge.up{background:#dbeafe;color:#1e40af}.badge.std{background:#dcfce7;color:#166534}
+  .rm{background:none;border:none;color:#ef4444;cursor:pointer;font-size:17px;line-height:1;padding:2px 6px;border-radius:6px}.rm:hover{background:#fee2e2}
+  .view{display:none}.view.on{display:block;animation:fade .35s ease both}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .note{font-size:12px;color:var(--muted);line-height:1.55}
+  .prog{height:8px;background:var(--line);border-radius:999px;overflow:hidden}
+  .prog>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--green-2));transition:width .2s}
+  .frame{width:100%;height:600px;border:1px solid var(--line);border-radius:12px;background:#eef2f7}
+  #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:11px 18px;border-radius:12px;font-size:13px;font-weight:600;box-shadow:0 10px 30px -8px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:.25s;z-index:80;max-width:90vw}
+  #toast.show{opacity:1}
+  #toast.err{background:#b91c1c}#toast.ok{background:#15803d}
+  .modal{position:fixed;inset:0;background:rgba(12,35,64,.55);display:flex;align-items:center;justify-content:center;padding:18px;z-index:90}
+  .modal.hidden{display:none}
+  .spin{width:44px;height:44px;border:4px solid #e2e8f0;border-top-color:var(--blue);border-radius:50%;animation:sp 1s linear infinite;margin:0 auto}
+  @keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- ===================== HEADER ===================== -->
+<header class="grad-bar text-white">
+  <div class="max-w-[1200px] mx-auto px-4 sm:px-6 py-3 flex items-center gap-4">
+    <div class="w-10 h-10 rounded-xl bg-white/12 ring-1 ring-white/25 flex items-center justify-center flex-none">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#bff5d6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9h14v-9"/><path d="M9.5 19v-5h5v5"/></svg>
+    </div>
+    <div class="leading-tight">
+      <div class="font-head font-extrabold tracking-tight text-[15px] sm:text-[16px]">Envío de <span class="grad-text">Póliza Activa</span></div>
+      <div class="text-[11px] text-white/70 font-medium">Hogar Comprensivo · Seguros del INS</div>
+    </div>
+    <nav class="hidden md:flex items-center gap-2.5 ml-4">
+      <button class="step on" id="s1" onclick="goStep(1)"><span class="step-dot">1</span>Cargar</button><span class="step-sep"></span>
+      <button class="step" id="s2" onclick="goStep(2)"><span class="step-dot">2</span>Revisar</button><span class="step-sep"></span>
+      <button class="step" id="s3" onclick="goStep(3)"><span class="step-dot">3</span>Correo</button><span class="step-sep"></span>
+      <button class="step" id="s4" onclick="goStep(4)"><span class="step-dot">4</span>Enviado</button>
+    </nav>
+    <div class="ml-auto flex items-center gap-2 text-white/85 text-[11px]">
+      <a href="../" class="text-white/80 hover:text-white text-[11.5px] mr-1" title="Volver al cotizador">← Cotizador</a>
+      <span id="agName" class="hidden sm:inline"></span>
+      <div id="agAvatar" class="w-8 h-8 rounded-full bg-white/15 ring-1 ring-white/30 flex items-center justify-center font-head font-bold text-[12px]">JC</div>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-[1200px] mx-auto px-4 sm:px-6 py-6">
+
+  <!-- aviso perfil sin configurar -->
+  <div id="agNudge" class="hidden card soft px-4 py-3 mb-4 flex items-center gap-3" style="border-color:#fcd34d;background:#fffbeb">
+    <span class="text-[20px]">⚙️</span>
+    <div class="text-[12.5px] text-[#78350f] leading-snug flex-1">Todavía no configuraste tus datos de agente (nombre, licencia, WhatsApp). Se usan en la firma del correo. <a href="../" class="font-bold underline">Configuralos en el cotizador →</a></div>
+  </div>
+
+  <!-- ============ VISTA 1 · CARGAR ============ -->
+  <section class="view on" id="v1">
+    <div class="card soft p-5 sm:p-6 max-w-[760px] mx-auto">
+      <h2 class="font-head font-bold text-[16px] text-[var(--navy)] mb-1">1 · Cargá las Condiciones Particulares</h2>
+      <p class="note mb-4">Arrastrá las <b>Condiciones Particulares</b> de la póliza emitida. Si trae <b>condiciones especiales</b> (gas, paneles solares, cargador VE, edificio desocupado) o el <b>comprobante de pago</b>, arrastralos también — se adjuntan igual. De las Condiciones Particulares extraigo los datos.</p>
+
+      <div class="dz p-8 text-center" id="dz" tabindex="0" role="button" aria-label="Cargar PDF">
+        <div class="text-[42px] leading-none mb-2">📄</div>
+        <div class="font-head font-bold text-[14px] text-[var(--navy)]">Arrastrá los PDF o hacé clic para seleccionar</div>
+        <div class="note mt-1">Podés cargar varios a la vez · solo PDF</div>
+        <input type="file" id="fileInput" accept="application/pdf" multiple hidden>
+      </div>
+
+      <div id="uploadProg" class="hidden mt-4">
+        <div class="prog"><i id="upBar"></i></div>
+        <div class="note mt-1.5" id="upStatus"></div>
+      </div>
+      <div id="uploadErr" class="hidden mt-3 rounded-xl px-4 py-3 text-[12.5px]" style="background:#fee2e2;color:#b91c1c"></div>
+
+      <div class="mt-4 rounded-xl bg-white border border-[var(--line)] px-4 py-3">
+        <div class="text-[12px] font-bold text-[var(--navy)] mb-2">📎 Se adjuntan solos a toda emisión (fijos):</div>
+        <div class="grid sm:grid-cols-2 gap-2 text-[11.5px] text-slate-600">
+          <div class="flex items-center gap-2"><span>🔒</span> Condiciones Generales <b>V17</b></div>
+          <div class="flex items-center gap-2"><span>🔒</span> Condiciones Multiasistencia</div>
+        </div>
+      </div>
+      <div class="text-center mt-4"><button class="btn btn-ghost text-[12px]" style="padding:8px 14px" onclick="loadDemo()">Ver ejemplo (sin cargar PDF)</button></div>
+    </div>
+  </section>
+
+  <!-- ============ VISTA 2 · REVISAR ============ -->
+  <section class="view" id="v2">
+    <div class="grid lg:grid-cols-2 gap-4">
+      <!-- Datos -->
+      <div class="card soft p-5">
+        <h2 class="font-head font-bold text-[16px] text-[var(--navy)] mb-1">2 · Datos de la póliza</h2>
+        <p class="note mb-4">Revisá lo que extraje del PDF y corregí lo que haga falta — todo editable.</p>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="lab">N° de póliza</label><input class="inp" id="fPoliza"></div>
+          <div><label class="lab">Estado</label><input class="inp" id="fEstado"></div>
+        </div>
+        <div class="mt-3"><label class="lab">Nombre del cliente</label><input class="inp" id="fCliente"></div>
+        <div class="grid grid-cols-2 gap-3 mt-3">
+          <div><label class="lab">Nombre para el saludo</label><input class="inp" id="fSaludo" placeholder="Ej: Marco Andrés"></div>
+          <div><label class="lab req">Correo del cliente</label><input class="inp" id="fEmail" type="email" placeholder="correo@ejemplo.com"></div>
+        </div>
+        <div class="mt-3"><label class="lab">Ubicación del riesgo</label><input class="inp" id="fUbic"></div>
+        <div class="grid grid-cols-2 gap-3 mt-3">
+          <div><label class="lab">Vigencia</label><input class="inp" id="fVig"></div>
+          <div><label class="lab">Forma de pago</label><input class="inp" id="fPago"></div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 mt-3">
+          <div><label class="lab">Suma asegurada</label><input class="inp" id="fSuma"></div>
+          <div><label class="lab">Prima de coberturas</label><input class="inp" id="fPrima"></div>
+        </div>
+        <div class="mt-3">
+          <label class="lab">Coberturas leídas del PDF</label>
+          <div id="covChips" class="flex flex-wrap gap-2"></div>
+          <p class="note mt-1.5" id="asistNote"></p>
+        </div>
+        <div class="flex justify-between mt-5">
+          <button class="btn btn-ghost" onclick="goStep(1)">← Volver</button>
+          <button class="btn btn-primary" onclick="goStep(3)">Continuar →</button>
+        </div>
+      </div>
+      <!-- Adjuntos -->
+      <div class="card soft p-5">
+        <h2 class="font-head font-bold text-[16px] text-[var(--navy)] mb-1">Documentos a adjuntar</h2>
+        <p class="note mb-4">Se enviarán con el correo. Podés agregar o quitar los que cargaste.</p>
+        <div id="docList"></div>
+        <label class="btn btn-ghost text-[12px] inline-block mt-1" style="padding:8px 14px;cursor:pointer">+ Agregar otro PDF
+          <input type="file" id="fileInput2" accept="application/pdf" multiple hidden></label>
+        <div class="mt-5 rounded-xl bg-[#f0fdf6] border border-[#bbf7d0] px-4 py-3 text-[11.5px] text-[#15803d] leading-relaxed">
+          ✅ 2 fijos (Generales V17 + Multiasistencia) + lo que cargues. Total actual: <b><span id="docCount">0</span> adjuntos</b>.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ VISTA 3 · CORREO ============ -->
+  <section class="view" id="v3">
+    <div class="grid lg:grid-cols-2 gap-4">
+      <div class="card soft p-5">
+        <h2 class="font-head font-bold text-[16px] text-[var(--navy)] mb-1">3 · Configurar correo</h2>
+        <div class="mt-3"><label class="lab req">Para</label><input class="inp" id="mTo" type="email"></div>
+        <div class="mt-3"><label class="lab">Asunto</label><input class="inp" id="mSubject"></div>
+        <div class="mt-3"><label class="lab">Nombre en el saludo</label><input class="inp" id="mSaludo"></div>
+        <div class="mt-3"><label class="lab">Nota personal (opcional)</label><textarea class="inp" id="mNota" rows="3" placeholder="Mensaje adicional para el cliente..."></textarea></div>
+        <div class="mt-3"><span class="chip chip-blue">📎 <span id="mCount">0</span> documento(s) adjunto(s)</span></div>
+        <button class="btn btn-send mt-4" onclick="doSend()">Autorizar Gmail y Enviar</button>
+        <div class="mt-3"><button class="btn btn-ghost" onclick="goStep(2)">← Volver</button></div>
+      </div>
+      <div class="card soft p-5">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="font-head font-bold text-[15px] text-[var(--navy)]">Vista previa</h2>
+          <span class="chip chip-green">solo texto + color</span>
+        </div>
+        <iframe id="preview" class="frame" title="Vista previa del correo"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ VISTA 4 · ENVIADO ============ -->
+  <section class="view" id="v4">
+    <div class="card soft p-8 max-w-[520px] mx-auto text-center">
+      <div class="w-16 h-16 rounded-full bg-[#dcfce7] text-[#15803d] text-[34px] flex items-center justify-center mx-auto mb-3">✓</div>
+      <div class="font-head font-extrabold text-[20px] text-[var(--navy)]">¡Póliza enviada!</div>
+      <p class="note mt-2" id="okMsg">El correo con la confirmación de póliza activa y los documentos llegó al cliente.</p>
+      <button class="btn btn-primary mt-5" onclick="resetApp()">Enviar otra póliza</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- Modal de envío -->
+<div class="modal hidden" id="sendModal">
+  <div class="card soft p-7 max-w-[420px] w-full text-center">
+    <div id="sendSpin"><div class="spin"></div></div>
+    <div id="sendDone" class="hidden text-[40px]">🎉</div>
+    <div id="sendFail" class="hidden text-[40px]">⚠️</div>
+    <div class="font-head font-bold text-[16px] text-[var(--navy)] mt-3" id="sendTitle">Enviando…</div>
+    <div class="note mt-1.5" id="sendMsg"></div>
+    <div id="sendActions" class="hidden mt-4 flex gap-2 justify-center">
+      <button class="btn btn-ghost" onclick="closeSend()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ============================================================
+   CONFIG — reutiliza el mismo Client ID OAuth del cotizador
+   ============================================================ */
+const CFG = {
+  CLIENT_ID:   '255791314248-apgnrs0tiii72ogau5dpsjm2eie6d2hu.apps.googleusercontent.com',
+  GMAIL_SCOPE: 'https://www.googleapis.com/auth/gmail.send',
+  GMAIL_SEND_URL: 'https://gmail.googleapis.com/gmail/v1/users/me/messages/send',
+  PDFJS_WORKER: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',
+  DEFAULTS: { name:'Juan Carlos Hernández', email:'jhernandez@segurosdelins.com', lic:'08-1318', wa:'8822-1348', web:'www.segurosdelins.com' }
+};
+if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = CFG.PDFJS_WORKER;
+
+/* Documentos FIJOS (genéricos, sin datos de cliente) — se adjuntan a toda emisión.
+   Rutas absolutas para que funcionen desde /poliza/. */
+const FIXED_DOCS = [
+  { url:'/emision/condiciones-generales-v17.pdf',    file:'Condiciones Generales Hogar Comprensivo.pdf' },
+  { url:'/emision/condiciones-multiasistencia.pdf',  file:'Condiciones Multiasistencia Hogar.pdf' }
+];
+
+const S = { tokenClient:null, accessToken:null, data:null, files:[], demo:false, sent:false };
+
+/* ============================================================
+   COBERTURAS + ASISTENCIA (idénticos al cotizador)
+   ============================================================ */
+const COV = {
+  V:{icon:'🏠', nombre:'Daño directo a la estructura', linea:'Protege el edificio: incendio, rayo, explosión, vientos huracanados, inundación, deslizamiento, daño por agua de lluvia y más.'},
+  Y:{icon:'📦', nombre:'Contenido del hogar (con robo)', linea:'Protege el menaje y los bienes del hogar e incluye robo y tentativa de robo.'},
+  X:{icon:'📦', nombre:'Contenido del hogar (sin robo)', linea:'Protege el menaje y los bienes del hogar por los riesgos de la cobertura básica (no incluye robo).'},
+  D:{icon:'🌋', nombre:'Convulsiones de la naturaleza', linea:'Temblor, terremoto, erupción volcánica y maremoto.'},
+  H:{icon:'🏘️', nombre:'Pérdida de rentas', linea:'Cubre el alquiler que el asegurado deja de percibir si la propiedad arrendada queda inhabitable por un siniestro.'},
+  K:{icon:'⚖️', nombre:'Responsabilidad civil', linea:'Cubre daños a terceros (lesiones, muerte o daño a su propiedad), incluso por mascotas.'},
+  M:{icon:'👷', nombre:'Riesgos del trabajo hogar', linea:'Protege a los trabajadores domésticos del hogar (solo en colones).'},
+  P:{icon:'🚑', nombre:'Accidentes personales', linea:'Muerte accidental, incapacidad y gastos médicos por accidente.'},
+  T:{icon:'🛠️', nombre:'Multiasistencia Hogar (gratis)', linea:'Plomería, electricidad y cerrajería de emergencia, sin costo adicional.'},
+  S:{icon:'✨', nombre:'Multiasistencia Hogar extendida', linea:'Servicios de asistencia ampliados, incluso para mascotas y asistencia médica o de viaje.'}
+};
+const COV_CODES = new Set(Object.keys(COV));
+function covInfo(code){ return COV[code] || {icon:'🛡️', nombre:'Cobertura '+code, linea:'Cobertura incluida en su póliza.'}; }
+
+const ASIST = [
+  {ic:'🔧', n:'Fontanería de emergencia', d:'Rotura de tuberías y llaves, con detección de fugas.', ext:false},
+  {ic:'🔑', n:'Cerrajería de emergencia', d:'Pérdida o robo de llaves y daño de cerraduras.', ext:false},
+  {ic:'💡', n:'Electricidad de emergencia', d:'Cortocircuito o falla eléctrica interna; restablece el suministro.', ext:false},
+  {ic:'🪟', n:'Rotura de cristales', d:'Mano de obra para reponer vidrios de puertas y ventanas al exterior.', ext:false},
+  {ic:'🏥', n:'Traslado a cita médica', d:'Transporte a tu cita médica programada, desde tu casa.', ext:false},
+  {ic:'✈️', n:'Traslado al aeropuerto', d:'Ida y vuelta entre tu casa y el aeropuerto.', ext:false},
+  {ic:'🚿', n:'Destape de cañerías', d:'Libera las cañerías obstruidas.', ext:true},
+  {ic:'🚪', n:'Portones eléctricos', d:'Reparación de emergencia por cables o poleas.', ext:true},
+  {ic:'🚰', n:'Instalación de grifería', d:'Mano de obra para cambiar grifos o llaves.', ext:true}
+];
+function asistPlan(){ const codes=(S.data&&S.data.coberturas||[]).map(c=>c.code); return codes.indexOf('S')>-1?'S':'T'; }
+function asistList(){ const ext=asistPlan()==='S'; return ASIST.filter(a=>ext||!a.ext); }
+function asistTitulo(){ return asistPlan()==='S' ? 'Multiasistencia Hogar Extendida — incluida' : 'Multiasistencia Hogar — incluida'; }
+
+/* ============================================================
+   HELPERS (idénticos al cotizador)
+   ============================================================ */
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function parseAmount(str){ const d=String(str||'').replace(/[^\d]/g,''); return d?parseInt(d,10):null; }
+function fmtCRC(n){ if(n==null||isNaN(n)) return '—'; return '₡'+Number(n).toLocaleString('es-CR'); }
+function titleCase(s){ return String(s||'').toLowerCase().replace(/(^|[\s\-])(\p{L})/gu,(m,sep,ch)=>sep+ch.toUpperCase()); }
+function agent(){ try{ return JSON.parse(localStorage.getItem('hogar_agent'))||{}; }catch(e){ return {}; } }
+function A(k){ const a=agent(); return a[k] || CFG.DEFAULTS[k]; }
+function waDigits(){ return (A('wa')||'').replace(/\D/g,''); }
+function firstName(full){ const p=titleCase(full).split(/\s+/).filter(Boolean); return p[0]||''; }
+function esSociedad(nm){ return /sociedad|s\.?a\.?\b|ltda|limitada|s\.?r\.?l|condominio|asociaci[oó]n|fundaci[oó]n|cooperativa/i.test(nm||''); }
+function toast(msg,kind){ const t=document.getElementById('toast'); t.textContent=msg; t.className='show'+(kind?' '+kind:''); clearTimeout(t._t); t._t=setTimeout(()=>t.className='',3200); }
+
+/* ============================================================
+   EXTRACCIÓN — Condiciones Particulares Hogar Comprensivo (081_81B)
+   Calibrada contra PDF real; también tolera el formato "Duplicado"
+   (códigos tipo 8VV-V:, 81D-D:, 81X-S:).
+   ============================================================ */
+async function pageLines(page, tol){
+  const tc = await page.getTextContent();
+  const items = tc.items.map(i=>({ t:i.str, x:i.transform[4], y:i.transform[5] }));
+  tol = tol||2.5;
+  const sorted = items.slice().sort((a,b)=>b.y-a.y);
+  const rows=[];
+  for(const it of sorted){
+    let r = rows.find(r=>Math.abs(r.y-it.y)<=tol);
+    if(!r){ r={y:it.y, items:[]}; rows.push(r); }
+    r.items.push(it);
+  }
+  rows.forEach(r=>r.items.sort((a,b)=>a.x-b.x));
+  return rows.map(r=>r.items.map(i=>i.t).join(' ').replace(/\s+/g,' ').trim());
+}
+async function readRows(bytes){
+  const pdf = await pdfjsLib.getDocument({ data: bytes.slice() }).promise;
+  let rows=[];
+  const n=Math.min(pdf.numPages,2); // los datos viven en la pág 1 (2 por si acaso)
+  for(let i=1;i<=n;i++){ rows = rows.concat(await pageLines(await pdf.getPage(i))); }
+  return rows;
+}
+const CUR = '[¢₡]';
+function pickPoliza(t){
+  let m = t.match(/de\s+P[oó]liza:\s*([0-9]{3,4}[A-Z]{2,4}[0-9]{5,})/i);
+  if(m) return m[1].toUpperCase();
+  m = t.match(/\b(0[0-9]{3}(?:IMR|INC)[0-9]{5,})\b/i);
+  return m ? m[1].toUpperCase() : '';
+}
+function extractFromRows(rows){
+  const t = rows.join('\n');
+  const g = (re)=>{ const m=t.match(re); return m?m[1].trim():''; };
+  const d = {
+    poliza: pickPoliza(t),
+    consecutivo: g(/Consecutivo[:\s]+([\d\-]{6,})/i),
+    cliente: '',
+    cedula: '',
+    vigDesde:'', vigHasta:'',
+    formaPago: titleCase(g(/Forma de [Pp]ago:\s*([A-Za-zÁÉÍÓÚÑ]+)/)),
+    estado: g(/Estado de la p[oó]liza:\s*([A-Za-zÁÉÍÓÚÑ ]+)/i),
+    provincia:'', canton:'', distrito:'', ocupacion:'', descripcion:'',
+    suma:null, modalidad:'', coberturas:[], correo:''
+  };
+  // Tomador / Asegurado + cédula
+  let m = t.match(/Nombre del Tomador:\s*(.+?)\s*N[°º]?\s*Identificaci[oó]n:\s*([0-9]+)/i)
+       || t.match(/Nombre o Raz[oó]n Social:\s*(.+?)\s*N[°º]?\s*Identificaci[oó]n:\s*([0-9]+)/i)
+       || t.match(/Nombre del Asegurado:\s*(.+?)\s*N[°º]?\s*Identificaci[oó]n:\s*([0-9]+)/i);
+  if(m){ d.cliente = m[1].replace(/\s+/g,' ').trim(); d.cedula = m[2]; }
+  // Vigencia
+  m = t.match(/Desde:?\s*(\d{2}\/\d{2}\/\d{4})\s*Hasta:?\s*(\d{2}\/\d{2}\/\d{4})/i);
+  if(m){ d.vigDesde=m[1]; d.vigHasta=m[2]; }
+  // Ubicación
+  m = t.match(/Provincia:\s*([^\n]+?)\s*Cant[oó]n:\s*([^\n]+)/i); if(m){ d.provincia=m[1].trim(); d.canton=m[2].trim(); }
+  m = t.match(/Distrito:\s*([^\n]+?)\s*Tipo de Ocupaci[oó]n:\s*([^\n]+)/i); if(m){ d.distrito=m[1].trim(); d.ocupacion=m[2].trim(); }
+  else { m = t.match(/Distrito:\s*([^\n]+)/i); if(m) d.distrito=m[1].trim(); }
+  m = t.match(/Descripci[oó]n:\s*([^\n]+?)\s*Folio Real:/i); if(m) d.descripcion=m[1].trim().replace(/habitaci[oó]?\s*n/gi,'Habitación');
+  // Suma asegurada (fila de rubro) + modalidad
+  m = t.match(/\n\d+\s*-\s*[^\n]*?[¢₡]\s*([\d.,   ]{5,}?)\s+[NS]\b/); if(m) d.suma=parseAmount(m[1]);
+  m = t.match(/\b(Reposici[oó]n|Real Efectivo|Valor Real Efectivo|Valor Real)\b/i); if(m) d.modalidad=titleCase(m[1]);
+  // Correo del cliente (Duplicado a veces lo trae; excluir correos del agente/INS)
+  const mails = (t.match(/[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}/g)||[])
+    .filter(e=>!/segurosdelins\.com|grupoins\.com|@ins\./i.test(e));
+  if(mails.length) d.correo = mails[0];
+  // Coberturas: fila que empieza con [prefijo-]LETRA: , trae % y montos; prima = último ₡
+  rows.forEach(ln=>{
+    const cm = ln.match(/^(?:[0-9A-Z]{1,4}-)?([A-Z]):\s+\S/);
+    if(!cm) return;
+    const code = cm[1];
+    if(!COV_CODES.has(code)) return;         // solo códigos válidos (excluye I.V.A., etc.)
+    if(!/%/.test(ln)) return;                // las coberturas traen participación %
+    const amts = ln.match(new RegExp(CUR+'\\s*[\\d.,\\u00a0\\u2009 ]+','g'));
+    if(!amts) return;
+    const prima = parseAmount(amts[amts.length-1]);
+    if(d.coberturas.some(c=>c.code===code)) return;
+    d.coberturas.push({ code, prima });
+    if(d.suma==null && amts.length>=2) d.suma = parseAmount(amts[amts.length-2]);
+  });
+  return d;
+}
+
+/* ============================================================
+   CLASIFICACIÓN DE ARCHIVOS (por contenido)
+   ============================================================ */
+function classifyText(text){
+  if(/Detalle de Coberturas/i.test(text) && /(N[°º]?\s*de\s*P[oó]liza|Condiciones Particulares|DUPLICADO)/i.test(text)) return 'particulares';
+  if(/Condiciones Especiales/i.test(text)) return 'especial';
+  if(/(comprobante|recibo)[^\n]{0,50}pago|Estado (Actual )?de la Deuda|Prima\s+(Pagada|por pagar|Recaudada)/i.test(text)) return 'comprobante';
+  return 'otro';
+}
+function niceName(f){
+  const pol = (S.data&&S.data.poliza) ? ' - '+S.data.poliza : '';
+  if(f.kind==='particulares') return 'Condiciones Particulares'+pol+'.pdf';
+  if(f.kind==='comprobante')  return 'Comprobante de Pago'+pol+'.pdf';
+  if(f.kind==='especial')     return f.orig.replace(/\.pdf$/i,'').replace(/[_]+/g,' ').replace(/\b\d{4}IMR\d+\b/gi,'').replace(/\s{2,}/g,' ').trim().slice(0,60)+'.pdf';
+  return f.orig.replace(/[^A-Za-z0-9 .\-]/g,'_');
+}
+
+/* ============================================================
+   UPLOAD FLOW (múltiples PDF)
+   ============================================================ */
+const dz=document.getElementById('dz'), fileInput=document.getElementById('fileInput'), fileInput2=document.getElementById('fileInput2');
+['dragenter','dragover'].forEach(e=>dz.addEventListener(e,ev=>{ev.preventDefault();dz.classList.add('hot')}));
+['dragleave','drop'].forEach(e=>dz.addEventListener(e,ev=>{ev.preventDefault();dz.classList.remove('hot')}));
+dz.addEventListener('drop',ev=>{ if(ev.dataTransfer.files.length) handleFiles(ev.dataTransfer.files,true); });
+dz.addEventListener('click',()=>fileInput.click());
+dz.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();fileInput.click();} });
+fileInput.addEventListener('change',()=>{ if(fileInput.files.length) handleFiles(fileInput.files,true); fileInput.value=''; });
+fileInput2.addEventListener('change',()=>{ if(fileInput2.files.length) handleFiles(fileInput2.files,false); fileInput2.value=''; });
+
+async function handleFiles(list, isFirst){
+  const arr=[...list].filter(f=>/\.pdf$/i.test(f.name)||f.type==='application/pdf');
+  if(!arr.length){ if(isFirst) showErr('El archivo debe ser un PDF.'); else toast('Solo PDF.','err'); return; }
+  if(isFirst){ S.files=[]; S.data=null; S.demo=false; S.sent=false; document.getElementById('uploadErr').classList.add('hidden'); document.getElementById('uploadProg').classList.remove('hidden'); setBar(10,'Leyendo '+arr.length+' archivo(s)…'); }
+  const hadData=!!S.data;
+  try{
+    for(const f of arr){
+      const bytes = new Uint8Array(await f.arrayBuffer());
+      let text=''; try{ text=(await readRows(bytes)).join('\n'); }catch(e){ text=''; }
+      S.files.push({ orig:f.name, bytes, text, kind:classifyText(text) });
+    }
+    // Elegir fuente de extracción: la primera 'particulares' (o la que dé N° de póliza)
+    if(isFirst){ setBar(60,'Extrayendo datos de la póliza…'); }
+    let src = S.files.find(f=>f.kind==='particulares');
+    if(!src){ for(const f of S.files){ const d=extractFromRows(f.text.split('\n')); if(d.poliza){ src=f; f.kind='particulares'; break; } } }
+    if(!src){ if(isFirst) showErr('No encontré las Condiciones Particulares en lo que cargaste. Asegurate de incluir ese PDF.'); else toast('No parece haber Condiciones Particulares nuevas; se adjuntan igual.','err'); if(!S.data && !isFirst){} }
+    if(src && (!S.data || isFirst)){ S.data = extractFromRows(src.text.split('\n')); S.demo=false; }
+    if(isFirst){
+      if(!S.data){ return; }
+      setBar(100,'Listo'); setTimeout(()=>{ fillReview(); goStep(2); },300);
+    } else {
+      renderDocs(); if(!hadData && S.data) fillReview(); toast('Documento agregado.','ok');
+    }
+  }catch(err){ if(isFirst) showErr('No se pudo procesar: '+err.message); else toast('Error: '+err.message,'err'); }
+}
+function setBar(p,txt){ document.getElementById('upBar').style.width=p+'%'; document.getElementById('upStatus').textContent=txt||''; }
+function showErr(msg){ const e=document.getElementById('uploadErr'); e.textContent=msg; e.classList.remove('hidden'); document.getElementById('uploadProg').classList.add('hidden'); }
+
+/* ============================================================
+   REVISAR (vista 2)
+   ============================================================ */
+function ubicText(d){ return [d.provincia,d.canton,d.distrito].map(x=>titleCase(x)).filter(Boolean).join(', ') + (d.descripcion?(' — '+titleCase(d.descripcion)):''); }
+function fillReview(){
+  const d=S.data;
+  document.getElementById('fPoliza').value=d.poliza||'';
+  document.getElementById('fEstado').value=d.estado||'VIGENTE';
+  document.getElementById('fCliente').value=titleCase(d.cliente)||'';
+  document.getElementById('fSaludo').value = esSociedad(d.cliente) ? '' : (firstName(d.cliente)||'');
+  document.getElementById('fEmail').value=d.correo||'';
+  document.getElementById('fEmail').classList.toggle('need', !d.correo);
+  document.getElementById('fUbic').value=ubicText(d);
+  document.getElementById('fVig').value=(d.vigDesde&&d.vigHasta)?(d.vigDesde+' → '+d.vigHasta):'';
+  document.getElementById('fPago').value=d.formaPago||'';
+  document.getElementById('fSuma').value=d.suma!=null?fmtCRC(d.suma):'';
+  const primaTot=d.coberturas.reduce((s,c)=>s+(c.prima||0),0);
+  document.getElementById('fPrima').value=primaTot?fmtCRC(primaTot):'';
+  // chips coberturas
+  const cc=document.getElementById('covChips'); cc.innerHTML='';
+  if(d.coberturas.length){ d.coberturas.forEach(c=>{ const i=covInfo(c.code);
+    cc.innerHTML+=`<span class="chip chip-green">${i.icon} ${esc(c.code)} · ${esc(i.nombre)}</span>`; }); }
+  else cc.innerHTML='<span class="chip chip-amber">No leí coberturas — revisá el PDF</span>';
+  document.getElementById('asistNote').innerHTML = asistPlan()==='S'
+    ? 'Con cobertura <b>S</b> → asistencia <b>Extendida</b>: 9 servicios.'
+    : 'Asistencia <b>Plan Básico (gratis)</b>: 6 servicios.';
+  renderDocs();
+}
+function renderDocs(){
+  const list=document.getElementById('docList'); list.innerHTML='';
+  const kindBadge={particulares:'Condiciones Particulares',comprobante:'Comprobante de pago',especial:'Condiciones especiales',otro:'Documento'};
+  S.files.forEach((f,idx)=>{
+    const div=document.createElement('div'); div.className='doc';
+    div.innerHTML=`<span class="text-[18px]">${f.kind==='particulares'?'📄':f.kind==='comprobante'?'🧾':f.kind==='especial'?'🔥':'📎'}</span>
+      <div class="flex-1 min-w-0"><div class="nm">${esc(niceName(f))}</div><div class="mt">${kindBadge[f.kind]}${f.kind==='particulares'?' · fuente de datos':''} · ${(f.bytes.length/1024|0)} KB</div></div>
+      <span class="badge up">Subido</span><button class="rm" title="Quitar" onclick="removeFile(${idx})">✕</button>`;
+    list.appendChild(div);
+  });
+  FIXED_DOCS.forEach(fd=>{ const div=document.createElement('div'); div.className='doc';
+    div.innerHTML=`<span class="text-[18px]">📘</span><div class="flex-1 min-w-0"><div class="nm">${esc(fd.file)}</div><div class="mt">fijo · se adjunta siempre</div></div><span class="badge std">Fijo</span>`;
+    list.appendChild(div);
+  });
+  const total=S.files.length+FIXED_DOCS.length;
+  document.getElementById('docCount').textContent=total;
+  document.getElementById('mCount').textContent=total;
+}
+function removeFile(i){
+  const wasSrc = S.files[i] && S.files[i].kind==='particulares';
+  S.files.splice(i,1);
+  if(wasSrc){
+    const src=S.files.find(f=>f.kind==='particulares');
+    if(src){ S.data=extractFromRows(src.text.split('\n')); fillReview(); }
+    else { S.data=null; renderDocs(); toast('Quitaste las Condiciones Particulares (fuente de datos). Cargá una para poder enviar.','err'); }
+  } else renderDocs();
+}
+
+/* ============================================================
+   NAVEGACIÓN + CORREO
+   ============================================================ */
+function goStep(n){
+  if(n>=2 && !S.data){ toast('Primero cargá las Condiciones Particulares.','err'); return; }
+  if(n===4 && !S.sent){ toast('Todavía no enviaste la póliza.','err'); return; }
+  for(let i=1;i<=4;i++){ document.getElementById('v'+i).classList.toggle('on', i===n); const s=document.getElementById('s'+i); if(s) s.classList.toggle('on', i<=n); }
+  if(n===3) prepEmail();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function subject(){ return 'Su póliza Hogar Comprensivo ya está activa 🏡 — INS'; }
+function saludoName(){
+  const s=(document.getElementById('mSaludo')||{}).value; if(s!=null && s.trim()) return s.trim();
+  const s2=(document.getElementById('fSaludo').value||'').trim(); if(s2) return s2;
+  return esSociedad(S.data&&S.data.cliente)?'':(firstName(S.data&&S.data.cliente)||'');
+}
+function prepEmail(){
+  document.getElementById('mTo').value = document.getElementById('fEmail').value.trim();
+  document.getElementById('mSubject').value = document.getElementById('mSubject').value || subject();
+  if(!document.getElementById('mSaludo').value) document.getElementById('mSaludo').value = document.getElementById('fSaludo').value;
+  renderPreview();
+}
+['input'].forEach(ev=>{ ['mSaludo','mNota','mSubject'].forEach(id=>document.addEventListener(ev,e=>{ if(e.target && e.target.id===id) renderPreview(); })); });
+function renderPreview(){ const f=document.getElementById('preview'); f.srcdoc=buildEmail(); }
+
+function buildEmail(fixedOk){
+  const d=S.data||{};
+  const nombre = saludoName() || 'cliente';
+  const nota = ((document.getElementById('mNota')||{}).value||'').trim();
+  const fam='Sora,Helvetica,Arial,sans-serif', fbody='Inter,Helvetica,Arial,sans-serif';
+  const ubic = [d.provincia,d.canton].filter(Boolean).join(', ');
+  const covList = (d.coberturas||[]).filter(c=>COV[c.code]);
+  const covCards = covList.map(c=>{ const i=COV[c.code];
+    return `<tr><td style="padding:6px 0;vertical-align:top;width:26px;font-size:16px">${i.icon}</td><td style="padding:6px 0;font-size:13px;color:#334155"><b style="color:#0c2340">${esc(i.nombre)}</b> — ${esc(i.linea)}</td></tr>`; }).join('')
+    || '<tr><td style="font-size:13px;color:#334155;padding:6px 0">Ver el detalle de coberturas en las Condiciones Particulares adjuntas.</td></tr>';
+  const A_=asistList();
+  const cell=a=>a?`<td width="50%" valign="top" style="padding:9px 8px"><table cellpadding="0" cellspacing="0" width="100%"><tr><td valign="top" style="font-size:16px;width:24px;padding-right:6px;line-height:1.2">${a.ic}</td><td valign="top"><div style="font-family:${fam};font-weight:700;color:#0c2340;font-size:12.5px">${esc(a.n)}</div><div style="font-size:11.5px;color:#475569;line-height:1.45;margin-top:1px">${esc(a.d)}</div></td></tr></table></td>`:'<td width="50%"></td>';
+  let asistRows=''; for(let i=0;i<A_.length;i+=2){ asistRows+='<tr>'+cell(A_[i])+cell(A_[i+1])+'</tr>'; }
+  // documentación adjunta (según lo cargado + fijos)
+  const bullets=[], _seen=new Set();
+  const _lbl={particulares:'Condiciones Particulares de su póliza',comprobante:'Comprobante de pago',especial:'Condiciones especiales aplicables',otro:'Documento adjunto'};
+  S.files.forEach(f=>{ const l=_lbl[f.kind]||'Documento adjunto'; if(!_seen.has(l)){ _seen.add(l); bullets.push(l); } });
+  if(S.demo && !S.files.length) bullets.push('Condiciones Particulares de su póliza');
+  const _fx = fixedOk || FIXED_DOCS.map(fd=>fd.file);
+  if(_fx.some(n=>/Generales/i.test(n))) bullets.push('Condiciones Generales Hogar Comprensivo');
+  if(_fx.some(n=>/Multiasistencia/i.test(n))) bullets.push('Condiciones de Multiasistencia Hogar');
+  const docBullets = bullets.map(b=>'✅ '+esc(b)).join('<br>');
+  const vig=(d.vigDesde&&d.vigHasta)?(d.vigDesde+' → '+d.vigHasta):'';
+  const notaBlock = nota? `<tr><td style="padding:4px 28px 0"><table width="100%" cellpadding="0" cellspacing="0" style="background:#fff7ed;border-left:4px solid #f59e0b;border-radius:8px"><tr><td style="padding:12px 14px;font-size:13px;color:#7c2d12;line-height:1.55">${esc(nota).replace(/\n/g,'<br>')}</td></tr></table></td></tr>`:'';
+  const web=String(A('web')||'').replace(/^https?:\/\//,'');
+  const waLink = waDigits()?('https://wa.me/506'+waDigits()):'';
+
+  return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${esc(subject())}</title></head>
+<body style="margin:0;padding:0;background:#eef2f7;font-family:${fbody}">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#eef2f7;padding:22px 0"><tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:14px;overflow:hidden;max-width:600px;box-shadow:0 4px 22px rgba(12,35,64,.10)">
+  <tr><td style="background:linear-gradient(120deg,#0c2340,#0369a1);padding:26px 28px;text-align:center">
+    <div style="font-family:${fam};font-size:21px;font-weight:800;color:#fff;letter-spacing:-.01em">🏡 Hogar Comprensivo</div>
+    <div style="font-size:12.5px;color:rgba(255,255,255,.82);margin-top:5px">Su póliza está activa · Instituto Nacional de Seguros</div></td></tr>
+  <tr><td style="padding:24px 28px 4px">
+    <p style="margin:0 0 12px;font-size:15px;font-weight:700;color:#0c2340;font-family:${fam}">Estimado(a) ${esc(nombre)}, 👋</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#ecfdf5;border:1px solid #a7f3d0;border-left:4px solid #10b981;border-radius:10px">
+      <tr><td style="padding:14px 18px;font-size:13.5px;line-height:1.6;color:#065f46">
+        Es un gusto saludarle. Le confirmo que su póliza${d.poliza?(' <b style="color:#0c2340">N° '+esc(d.poliza)+'</b>'):''}${ubic?(', que protege su propiedad en <b style="color:#0c2340">'+esc(titleCase(ubic))+'</b>'):''}, <b style="color:#047857">ya se encuentra activa</b>. ✅
+        ${(vig||d.suma!=null)?('<div style="margin-top:8px;font-size:12px;color:#334155">'+(vig?('📅 Vigencia: <b>'+esc(vig)+'</b>'):'')+((vig&&d.suma!=null)?' &nbsp;·&nbsp; ':'')+(d.suma!=null?('🏦 Suma asegurada: <b>'+esc(fmtCRC(d.suma))+'</b>'):'')+'</div>'):''}
+      </td></tr></table></td></tr>
+  <tr><td style="padding:16px 28px 4px">
+    <div style="background:#f0fdf6;border-left:4px solid #10b981;border-radius:8px;padding:12px 14px">
+      <div style="font-weight:700;color:#15803d;font-size:13px;margin-bottom:6px;font-family:${fam}">🛡️ ¿Qué protege su póliza?</div>
+      <table width="100%" cellpadding="0" cellspacing="0">${covCards}</table></div></td></tr>
+  <tr><td style="padding:16px 28px 4px"><table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:12px;overflow:hidden">
+    <tr><td style="background:linear-gradient(120deg,#0c2340 0%,#0369a1 52%,#10b981 100%);padding:14px 16px">
+      <div style="font-family:${fam};font-weight:700;color:#fff;font-size:14px">🛠️ ${esc(asistTitulo())}</div>
+      <div style="font-size:11.5px;color:rgba(255,255,255,.88);margin-top:3px">Una llamada al <b style="color:#fff">800-800-8001</b> · 365 días · App INS Móvil y WhatsApp. El INS coordina y paga el servicio.</div></td></tr>
+    <tr><td style="padding:4px 8px 10px"><table width="100%" cellpadding="0" cellspacing="0">${asistRows}</table></td></tr>
+  </table></td></tr>
+  <tr><td style="padding:16px 28px 4px">
+    <div style="font-weight:700;color:#0c2340;font-size:13px;margin-bottom:6px;font-family:${fam}">📁 Documentación adjunta</div>
+    <div style="font-size:13px;color:#334155;line-height:1.9">${docBullets}</div></td></tr>
+  <tr><td style="padding:14px 28px 4px">
+    <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px 14px">
+      <div style="font-weight:700;color:#0c4a6e;font-size:12.5px;margin-bottom:3px;font-family:${fam}">📞 Ante una emergencia en su hogar</div>
+      <div style="font-size:12.5px;color:#334155;line-height:1.6">Asistencia Hogar 24/7: <b style="color:#0c2340">800-800-8001</b> &nbsp;·&nbsp; Central INS: <b style="color:#0c2340">2287-6000</b></div></div></td></tr>
+  ${notaBlock}
+  <tr><td style="padding:20px 28px 0;border-top:1px solid #e0e7ef">
+    <p style="margin:14px 0 0;font-size:13px;color:#475569;line-height:1.5">Quedo a su entera disposición para cualquier consulta. Atentamente,</p>
+    <p style="margin:10px 0 0;font-family:${fam};font-weight:700;color:#0c2340;font-size:14px">${esc(A('name'))}</p>
+    <p style="margin:2px 0 0;font-size:11px;color:#64748b;line-height:1.6">Agente de Seguros Exclusivo · Instituto Nacional de Seguros<br>
+      Licencia SUGESE ${esc(A('lic'))} · Tel: ${esc(A('wa'))}<br>
+      <a href="mailto:${esc(A('email'))}" style="color:#0369a1;text-decoration:none">${esc(A('email'))}</a>${web?(' · '+esc(web)):''}</p></td></tr>
+  <tr><td style="background:#0c2340;color:#cbd5e1;padding:22px 28px;text-align:center">
+    <div style="font-family:${fam};font-weight:500;font-size:26px;letter-spacing:-1px;color:#fff;line-height:1">SDI</div>
+    <p style="margin:8px 0 0;font-size:11.5px;color:#cbd5e1">Plataforma de <b style="color:#fff">Seguros Digitales SDI®</b></p>
+    <p style="margin:6px 0 0;font-size:10px;color:#64748b">© 2026 · Producto del INS · Registro SUGESE G06-44-A01-142</p></td></tr>
+</table></td></tr></table></body></html>`;
+}
+
+/* ============================================================
+   GMAIL + MIME (idénticos al cotizador)
+   ============================================================ */
+function initToken(){
+  if(S.tokenClient) return S.tokenClient;
+  if(!window.google || !google.accounts || !google.accounts.oauth2) throw new Error('Google Identity Services no cargó todavía. Esperá unos segundos y reintentá.');
+  S.tokenClient = google.accounts.oauth2.initTokenClient({ client_id:CFG.CLIENT_ID, scope:CFG.GMAIL_SCOPE, callback:function(){} });
+  return S.tokenClient;
+}
+function getToken(){
+  if(S.accessToken) return Promise.resolve(S.accessToken);
+  initToken();
+  return new Promise((resolve,reject)=>{
+    S.tokenClient.callback=(resp)=>{ if(resp.error){reject(new Error('OAuth: '+resp.error));return;} S.accessToken=resp.access_token; resolve(resp.access_token); };
+    try{ S.tokenClient.requestAccessToken({prompt:''}); }catch(e){ reject(e); }
+  });
+}
+async function gmailSend(raw){
+  const res=await fetch(CFG.GMAIL_SEND_URL,{ method:'POST', headers:{Authorization:'Bearer '+S.accessToken,'Content-Type':'application/json'}, body:JSON.stringify({raw}) });
+  if(!res.ok){ const t=await res.text(); if(res.status===401){S.accessToken=null; throw new Error('El token de Gmail expiró. Volvé a autorizar y reintentá.');} throw new Error('Gmail API '+res.status+': '+t); }
+  return res.json();
+}
+function u8ToB64(bytes){ let b=''; const c=0x8000; for(let i=0;i<bytes.length;i+=c){ b+=String.fromCharCode.apply(null,bytes.subarray(i,i+c)); } return btoa(b); }
+function wrap76(b64){ return b64.match(/.{1,76}/g).join('\r\n'); }
+function b64url(str){ return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
+function enc2047(s){ if(/^[\x20-\x7E]*$/.test(s)) return s; return '=?UTF-8?B?'+btoa(unescape(encodeURIComponent(s)))+'?='; }
+function encFrom(from){ const m=String(from).match(/^"([^"]+)"\s*(<[^>]+>)$/); if(!m) return String(from).replace(/[\r\n]+/g,' '); const n=m[1],e=m[2]; if(/^[\x20-\x7E]*$/.test(n)) return '"'+n+'" '+e; return '=?UTF-8?B?'+btoa(unescape(encodeURIComponent(n)))+'?= '+e; }
+function sanitizeFilename(name){ return String(name||'documento.pdf').replace(/[\r\n"]/g,'').replace(/[^A-Za-z0-9 ._\-()]/g,'_'); }
+function buildMIMEMulti({to,from,subject,html,attachments}){
+  const b='__hogar_sdi_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+  const CRLF='\r\n';
+  const hdr = s => String(s==null?'':s).replace(/[\r\n]+/g,' ');   // headers CRLF-safe (anti-inyección)
+  let msg='From: '+hdr(encFrom(from))+CRLF+'To: '+hdr(to)+CRLF+'Subject: '+enc2047(subject)+CRLF+'MIME-Version: 1.0'+CRLF+'Content-Type: multipart/mixed; boundary="'+b+'"'+CRLF+CRLF;
+  msg+='--'+b+CRLF+'Content-Type: text/html; charset=UTF-8'+CRLF+'Content-Transfer-Encoding: 7bit'+CRLF+CRLF+html+CRLF+CRLF;
+  (attachments||[]).forEach(a=>{ msg+='--'+b+CRLF+'Content-Type: application/pdf'+CRLF+'Content-Disposition: attachment; filename="'+sanitizeFilename(a.filename)+'"'+CRLF+'Content-Transfer-Encoding: base64'+CRLF+CRLF+wrap76(u8ToB64(a.bytes))+CRLF; });
+  msg+='--'+b+'--'+CRLF;
+  return b64url(msg);
+}
+async function fetchFixedDocs(){
+  const out=[];
+  for(const fd of FIXED_DOCS){
+    try{ const r=await fetch(fd.url,{cache:'no-cache'}); if(r.ok){ out.push({ bytes:new Uint8Array(await r.arrayBuffer()), filename:fd.file }); } else out._miss=(out._miss||[]).concat(fd.file); }
+    catch(e){ out._miss=(out._miss||[]).concat(fd.file); }
+  }
+  return out;
+}
+
+/* ============================================================
+   SEND
+   ============================================================ */
+async function doSend(){
+  const to=document.getElementById('mTo').value.trim();
+  if(!to || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)){ toast('Escribí un correo válido del cliente.','err'); document.getElementById('mTo').focus(); return; }
+  if(S.demo){ toast('Estás en modo ejemplo. Cargá el PDF real de la póliza para enviar.','err'); return; }
+  if(!S.files.some(f=>f.kind==='particulares')){ toast('Cargá las Condiciones Particulares (fuente de la póliza) antes de enviar.','err'); return; }
+  const modal=document.getElementById('sendModal'); modal.classList.remove('hidden');
+  const spin=document.getElementById('sendSpin'),done=document.getElementById('sendDone'),fail=document.getElementById('sendFail'),acts=document.getElementById('sendActions');
+  const title=document.getElementById('sendTitle'),msg=document.getElementById('sendMsg');
+  spin.classList.remove('hidden');done.classList.add('hidden');fail.classList.add('hidden');acts.classList.add('hidden');
+  title.textContent='Enviando correo…'; msg.textContent='Autorizando Gmail y preparando los adjuntos.';
+  try{
+    await getToken();
+    msg.textContent='Preparando documentos…';
+    const attachments = S.files.map(f=>({ bytes:f.bytes, filename:niceName(f) }));
+    const fixed = await fetchFixedDocs();
+    attachments.push(...fixed);
+    const html=buildEmail(fixed.map(f=>f.filename));
+    const from='"'+A('name')+'" <'+A('email')+'>';
+    const raw=buildMIMEMulti({ to, from, subject:(document.getElementById('mSubject').value||subject()), html, attachments });
+    await gmailSend(raw);
+    spin.classList.add('hidden'); done.classList.remove('hidden');
+    title.textContent='¡Correo enviado! 🎉';
+    let extra = fixed._miss? (' (ojo: no se pudo adjuntar '+fixed._miss.join(', ')+')') : '';
+    msg.textContent='La póliza llegó a '+to+' con '+attachments.length+' adjunto(s).'+extra;
+    acts.classList.remove('hidden');
+    document.getElementById('okMsg').textContent='La póliza llegó a '+to+' con '+attachments.length+' adjunto(s).';
+    S.sent=true; setTimeout(()=>{ closeSend(); goStep(4); }, 1400);
+  }catch(err){
+    spin.classList.add('hidden'); fail.classList.remove('hidden');
+    title.textContent='No se pudo enviar'; msg.textContent=err.message; acts.classList.remove('hidden');
+  }
+}
+function closeSend(){ document.getElementById('sendModal').classList.add('hidden'); }
+
+/* ============================================================
+   RESET + DEMO + INIT
+   ============================================================ */
+function resetApp(){
+  S.data=null; S.files=[]; S.demo=false; S.sent=false;
+  ['fPoliza','fEstado','fCliente','fSaludo','fEmail','fUbic','fVig','fPago','fSuma','fPrima','mTo','mSubject','mSaludo','mNota'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
+  document.getElementById('uploadProg').classList.add('hidden');
+  document.getElementById('uploadErr').classList.add('hidden');
+  setBar(0,'');
+  goStep(1);
+}
+function loadDemo(){
+  S.demo=true; S.files=[]; S.sent=false;
+  /* Datos FICTICIOS solo para previsualizar la UI y el correo (repo público: nada de clientes reales). */
+  S.data={ poliza:'0101IMR000000000', estado:'VIGENTE', cliente:'MARIA PAULA RODRIGUEZ SOTO', cedula:'110120345',
+    vigDesde:'01/06/2026', vigHasta:'01/06/2027', formaPago:'Semestral', provincia:'San José', canton:'Escazú', distrito:'San Rafael',
+    ocupacion:'Casa de Habitación en Centros Urbanos', descripcion:'Casa de Habitación', suma:75000000, modalidad:'Reposición',
+    coberturas:[{code:'V',prima:38200},{code:'D',prima:121500},{code:'S',prima:19754}], correo:'' };
+  fillReview(); goStep(2); toast('Modo ejemplo (datos ficticios): no se puede enviar sin el PDF real.','');
+}
+function initAgent(){
+  const a=agent();
+  document.getElementById('agName').textContent=A('name');
+  const parts=String(A('name')).trim().split(/\s+/); document.getElementById('agAvatar').textContent=((parts[0]||'')[0]||'')+((parts[1]||'')[0]||'')||'JC';
+  if(!a || !a.name) document.getElementById('agNudge').classList.remove('hidden');
+}
+initAgent();
+</script>
+</body>
+</html>
