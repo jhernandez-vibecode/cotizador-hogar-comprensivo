@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Envío de Póliza · Hogar Comprensivo · Seguros del INS</title>
+<title>Envío de Póliza · Hogar Comprensivo · Seguros Digitales SDI</title>
 <meta name="theme-color" content="#0c2340">
 <link rel="icon" type="image/png" href="../favicon.png">
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
@@ -18,9 +18,12 @@
   body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
     background:radial-gradient(1100px 480px at 12% -8%,rgba(3,105,161,.10),transparent 60%),radial-gradient(1000px 520px at 100% 0%,rgba(16,163,74,.10),transparent 55%),var(--bg);
     color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh}
-  h1,h2,h3,h4,.font-head{font-family:'Sora',system-ui,sans-serif}
+  /* Tipografia SDI: Poppins en titulos, Inter en el cuerpo, JetBrains Mono en cifras. */
+  h1,h2,h3,h4,.font-head{font-family:'Poppins',system-ui,sans-serif}
+  .cifra{font-family:'JetBrains Mono',ui-monospace,'SF Mono',monospace;font-weight:700;font-variant-numeric:tabular-nums}
+  /* Filete de marca: la proporcion 60/25/10/5 del manual hecha linea. */
+  .filete-sdi{height:4px;background:linear-gradient(to right,#0369A1 0 60%,#0D9488 60% 85%,#EA580C 85% 95%,#C9A227 95% 100%)}
   .grad-bar{background:linear-gradient(90deg,var(--navy) 0%,var(--blue) 48%,var(--green-2) 100%)}
-  .grad-text{background:linear-gradient(90deg,#bfe3ff,#bff5d6);-webkit-background-clip:text;background-clip:text;color:transparent}
   .ring-focus:focus-visible{outline:2px solid var(--blue-br);outline-offset:2px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:18px}
   .soft{box-shadow:0 1px 2px rgba(15,23,42,.04),0 10px 30px -18px rgba(15,23,42,.25)}
@@ -31,7 +34,7 @@
   .inp.need{border-color:#fca5a5;background:#fff5f5}
   .lab{display:block;font-size:11.5px;font-weight:600;color:#475569;margin:0 0 4px}
   .lab.req::after{content:" *";color:#ef4444}
-  .btn{border:none;border-radius:11px;padding:11px 18px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;transition:.15s}
+  .btn{border:none;border-radius:11px;padding:11px 18px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;transition:.15s}
   .btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{filter:brightness(1.08)}
   .btn-ghost{background:#eef2f7;color:#334155}.btn-ghost:hover{background:#e2e8f0}
   .btn-send{background:linear-gradient(90deg,var(--green),var(--green-2));color:#fff;width:100%}.btn-send:hover{filter:brightness(1.05)}
@@ -68,12 +71,28 @@
 <!-- ===================== HEADER ===================== -->
 <header class="grad-bar text-white">
   <div class="max-w-[1200px] mx-auto px-4 sm:px-6 py-3 flex items-center gap-4">
-    <div class="w-10 h-10 rounded-xl bg-white/12 ring-1 ring-white/25 flex items-center justify-center flex-none">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#bff5d6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9h14v-9"/><path d="M9.5 19v-5h5v5"/></svg>
-    </div>
-    <div class="leading-tight">
-      <div class="font-head font-extrabold tracking-tight text-[15px] sm:text-[16px]">Envío de <span class="grad-text">Póliza Activa</span></div>
-      <div class="text-[11px] text-white/70 font-medium">Hogar Comprensivo · Seguros del INS</div>
+    <!-- IDENTIDAD SDI (8 ago 2026), igual que en el cotizador: es herramienta del
+         agente, así que manda Seguros Digitales SDI y las dos marcas no compiten en
+         el mismo bloque. Logo 08-sdi-logo-header.svg del kit, INLINE y VECTORIZADO
+         (las letras son curvas: no dependen de ninguna fuente instalada). -->
+    <svg class="h-[30px] w-auto flex-none" viewBox="0 0 184 90" role="img" aria-label="Seguros Digitales SDI">
+      <path d="M36.076 74.656Q28.04 74.656 23.038 72.483Q18.036 70.31 15.535 66.456Q13.034 62.602000000000004 12.624 57.763999999999996H19.02Q19.266 61.7 21.644 64.119Q24.022 66.538 27.917 67.686Q31.812 68.834 36.486000000000004 68.834Q43.374 68.834 47.392 66.415Q51.410000000000004 63.996 51.410000000000004 59.24Q51.410000000000004 56.370000000000005 49.401 54.607Q47.392 52.843999999999994 44.071 51.696Q40.75 50.548 36.814 49.605000000000004Q32.878 48.662 28.901 47.596000000000004Q24.924 46.53 21.603 44.89Q18.282 43.25 16.273 40.667Q14.264 38.083999999999996 14.264 34.065999999999995Q14.264 27.424 19.389000000000003 23.241999999999997Q24.514000000000003 19.059999999999995 34.682 19.059999999999995Q41.897999999999996 19.059999999999995 46.572 21.232999999999997Q51.246 23.406 53.583 26.932Q55.92 30.458 56.166000000000004 34.558H49.852000000000004Q49.36 30.458 45.751999999999995 27.628999999999998Q42.144 24.799999999999997 34.682 24.799999999999997Q30.09 24.799999999999997 27.22 25.701999999999998Q24.35 26.604 22.833000000000002 28.038999999999998Q21.316000000000003 29.473999999999997 20.783 31.031999999999996Q20.25 32.589999999999996 20.25 33.984Q20.25 36.69 22.259 38.370999999999995Q24.268 40.052 27.589 41.159Q30.91 42.266 34.928 43.168Q38.946 44.07 42.923 45.177Q46.9 46.284 50.221000000000004 47.965Q53.542 49.646 55.551 52.269999999999996Q57.56 54.894 57.56 58.994Q57.56 66.538 51.82 70.59700000000001Q46.08 74.656 36.076 74.656ZM64.572 74.0V19.716H87.45Q92.28800000000001 19.716 96.757 21.561Q101.226 23.406 104.752 26.932Q108.27799999999999 30.458 110.328 35.459999999999994Q112.378 40.461999999999996 112.378 46.858000000000004Q112.378 53.254 110.328 58.256Q108.27799999999999 63.257999999999996 104.752 66.78399999999999Q101.226 70.31 96.757 72.155Q92.28800000000001 74.0 87.45 74.0ZM70.722 68.178H87.20400000000001Q93.02600000000001 68.178 97.29 65.226Q101.554 62.274 103.891 57.436Q106.22800000000001 52.598 106.22800000000001 46.858000000000004Q106.22800000000001 41.036 103.891 36.198Q101.554 31.36 97.29 28.448999999999998Q93.02600000000001 25.537999999999997 87.20400000000001 25.537999999999997H70.722ZM119.71799999999999 74.0V19.716H125.868V74.0Z" fill="#FFFFFF"/>
+      <g transform="translate(143.87, 19.06)">
+        <rect x="0" y="0" width="30" height="6.15" rx="1.5" fill="#0369A1"/>
+        <rect x="0" y="16.48" width="30" height="6.15" rx="1.5" fill="#0D9488"/>
+        <rect x="0" y="32.96" width="30" height="6.15" rx="1.5" fill="#EA580C"/>
+        <rect x="0" y="49.45" width="30" height="6.15" rx="1.5" fill="#C9A227"/>
+      </g>
+    </svg>
+    <div class="hidden sm:block w-px h-[30px] flex-none bg-white/30"></div>
+    <!-- El texto se oculta en celular, igual que en el cotizador: en 375px el logo
+         + "← Cotizador" + el avatar ya ocupan el ancho, y con el texto visible la
+         página quedaba con scroll horizontal. -->
+    <div class="hidden sm:block leading-tight whitespace-nowrap">
+      <!-- Blanco sólido: antes iba con background-clip:text sobre un degradado, que
+           en algunos navegadores deja el texto invisible. -->
+      <div class="font-head font-extrabold tracking-tight text-[15px] sm:text-[16px]">Envío de Póliza Activa</div>
+      <div class="text-[11px] text-white/70 font-medium">Hogar Comprensivo</div>
     </div>
     <nav class="hidden md:flex items-center gap-2.5 ml-4">
       <button class="step on" id="s1" onclick="goStep(1)"><span class="step-dot">1</span>Cargar</button><span class="step-sep"></span>
@@ -87,6 +106,7 @@
       <div id="agAvatar" class="w-8 h-8 rounded-full bg-white/15 ring-1 ring-white/30 flex items-center justify-center font-head font-bold text-[12px]">JC</div>
     </div>
   </div>
+  <div class="filete-sdi"></div>
 </header>
 
 <main class="max-w-[1200px] mx-auto px-4 sm:px-6 py-6">
@@ -531,7 +551,7 @@ function buildEmail(fixedOk){
   const d=S.data||{};
   const nombre = saludoName() || 'cliente';
   const nota = ((document.getElementById('mNota')||{}).value||'').trim();
-  const fam='Sora,Helvetica,Arial,sans-serif', fbody='Inter,Helvetica,Arial,sans-serif';
+  const fam='Poppins,Helvetica,Arial,sans-serif', fbody='Inter,Helvetica,Arial,sans-serif';
   const ubic = [d.provincia,d.canton].filter(Boolean).join(', ');
   const covList = (d.coberturas||[]).filter(c=>COV[c.code] && c.code!=='T' && c.code!=='S'); // T/S = asistencia, va en su propia sección
   const covCards = covList.map(c=>{ const i=COV[c.code];

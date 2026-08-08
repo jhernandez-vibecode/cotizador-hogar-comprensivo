@@ -18,7 +18,7 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --navy:#0c2340; --navy-2:#0f2d52; --blue:#0369a1; --blue-br:#2563eb;
@@ -35,9 +35,18 @@
       var(--bg);
     color:var(--ink); -webkit-font-smoothing:antialiased; min-height:100vh;
   }
-  h1,h2,h3,h4,.font-head{font-family:'Sora',system-ui,sans-serif}
+  /* Tipografía SDI: Poppins en títulos (la hermana con pesos de la letra del
+     logotipo), Inter en el cuerpo y JetBrains Mono en las cifras. La 4ª letra del
+     sistema, Questrial, va vectorizada DENTRO del logo y no se descarga. */
+  h1,h2,h3,h4,.font-head{font-family:'Poppins',system-ui,sans-serif}
+  /* Primas, sumas y consecutivos: todos los dígitos miden igual, así las cifras
+     quedan en columna y se comparan de un vistazo contra el PDF del INS. Medido:
+     en la letra de los títulos seis "1" ocupan 36px y seis "0" 64px. */
+  .cifra{font-family:'JetBrains Mono',ui-monospace,'SF Mono',monospace;font-weight:700;font-variant-numeric:tabular-nums}
   .grad-bar{background:linear-gradient(90deg,var(--navy) 0%, var(--blue) 48%, var(--green-2) 100%)}
-  .grad-text{background:linear-gradient(90deg,#bfe3ff,#bff5d6);-webkit-background-clip:text;background-clip:text;color:transparent}
+  /* El filete de marca: la proporción 60/25/10/5 del manual hecha línea. Es lo
+     único que mete el dorado, la firma de SDI. */
+  .filete-sdi{height:4px;background:linear-gradient(to right,#0369A1 0 60%,#0D9488 60% 85%,#EA580C 85% 95%,#C9A227 95% 100%)}
   .ring-focus:focus-visible{outline:2px solid var(--blue-br);outline-offset:2px}
   .tg{position:relative;width:46px;height:26px;border-radius:999px;background:#cbd5e1;transition:.22s;cursor:pointer;flex:none;border:none}
   .tg::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.22s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
@@ -79,7 +88,7 @@
   .stats-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:8px;margin-bottom:22px}
   .stats-kpi{background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:12px 5px;text-align:center}
   .stats-kpi.rate{background:var(--navy);border-color:var(--navy)}
-  .stats-kpi-num{font-size:22px;font-weight:800;color:var(--navy);line-height:1.1;font-family:'Sora',sans-serif}
+  .stats-kpi-num{font-size:22px;font-weight:700;color:var(--navy);line-height:1.1;font-family:'JetBrains Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
   .stats-kpi.rate .stats-kpi-num{color:#fff}
   .stats-kpi-label{font-size:10px;color:var(--muted);margin-top:5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
   .stats-kpi.rate .stats-kpi-label{color:rgba(255,255,255,.75)}
@@ -142,15 +151,38 @@
 <!-- ===================== TOP BAR ===================== -->
 <header class="grad-bar text-white">
   <div class="max-w-[1400px] mx-auto px-4 sm:px-6 py-3 flex items-center gap-4">
+    <!-- IDENTIDAD SDI (8 ago 2026). El cotizador es la herramienta del agente: acá
+         manda Seguros Digitales SDI. La línea "Seguros del INS" que estaba acá desde
+         el 22 jun salió por decisión de JC (8 ago), para no dejar las dos marcas
+         compitiendo en el mismo bloque; el INS se sigue nombrando dentro de la app y
+         en el correo al cliente, que es donde lo ve quien paga.
+         El logo es el 08-sdi-logo-header.svg del kit —wordmark blanco, barra en los 4
+         colores— copiado INLINE y VECTORIZADO: las letras son curvas, no texto, así
+         que no dependen de ninguna fuente instalada. Canónico en C:/Users/segur/SDI-BRAND-KIT. -->
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-white/12 ring-1 ring-white/25 flex items-center justify-center">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#bff5d6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9h14v-9"/><path d="M9.5 19v-5h5v5"/></svg>
-      </div>
-      <div class="leading-tight">
+      <svg class="h-[30px] w-auto flex-none" viewBox="0 0 184 90" role="img" aria-label="Seguros Digitales SDI">
+        <path d="M36.076 74.656Q28.04 74.656 23.038 72.483Q18.036 70.31 15.535 66.456Q13.034 62.602000000000004 12.624 57.763999999999996H19.02Q19.266 61.7 21.644 64.119Q24.022 66.538 27.917 67.686Q31.812 68.834 36.486000000000004 68.834Q43.374 68.834 47.392 66.415Q51.410000000000004 63.996 51.410000000000004 59.24Q51.410000000000004 56.370000000000005 49.401 54.607Q47.392 52.843999999999994 44.071 51.696Q40.75 50.548 36.814 49.605000000000004Q32.878 48.662 28.901 47.596000000000004Q24.924 46.53 21.603 44.89Q18.282 43.25 16.273 40.667Q14.264 38.083999999999996 14.264 34.065999999999995Q14.264 27.424 19.389000000000003 23.241999999999997Q24.514000000000003 19.059999999999995 34.682 19.059999999999995Q41.897999999999996 19.059999999999995 46.572 21.232999999999997Q51.246 23.406 53.583 26.932Q55.92 30.458 56.166000000000004 34.558H49.852000000000004Q49.36 30.458 45.751999999999995 27.628999999999998Q42.144 24.799999999999997 34.682 24.799999999999997Q30.09 24.799999999999997 27.22 25.701999999999998Q24.35 26.604 22.833000000000002 28.038999999999998Q21.316000000000003 29.473999999999997 20.783 31.031999999999996Q20.25 32.589999999999996 20.25 33.984Q20.25 36.69 22.259 38.370999999999995Q24.268 40.052 27.589 41.159Q30.91 42.266 34.928 43.168Q38.946 44.07 42.923 45.177Q46.9 46.284 50.221000000000004 47.965Q53.542 49.646 55.551 52.269999999999996Q57.56 54.894 57.56 58.994Q57.56 66.538 51.82 70.59700000000001Q46.08 74.656 36.076 74.656ZM64.572 74.0V19.716H87.45Q92.28800000000001 19.716 96.757 21.561Q101.226 23.406 104.752 26.932Q108.27799999999999 30.458 110.328 35.459999999999994Q112.378 40.461999999999996 112.378 46.858000000000004Q112.378 53.254 110.328 58.256Q108.27799999999999 63.257999999999996 104.752 66.78399999999999Q101.226 70.31 96.757 72.155Q92.28800000000001 74.0 87.45 74.0ZM70.722 68.178H87.20400000000001Q93.02600000000001 68.178 97.29 65.226Q101.554 62.274 103.891 57.436Q106.22800000000001 52.598 106.22800000000001 46.858000000000004Q106.22800000000001 41.036 103.891 36.198Q101.554 31.36 97.29 28.448999999999998Q93.02600000000001 25.537999999999997 87.20400000000001 25.537999999999997H70.722ZM119.71799999999999 74.0V19.716H125.868V74.0Z" fill="#FFFFFF"/>
+        <g transform="translate(143.87, 19.06)">
+          <rect x="0" y="0" width="30" height="6.15" rx="1.5" fill="#0369A1"/>
+          <rect x="0" y="16.48" width="30" height="6.15" rx="1.5" fill="#0D9488"/>
+          <rect x="0" y="32.96" width="30" height="6.15" rx="1.5" fill="#EA580C"/>
+          <rect x="0" y="49.45" width="30" height="6.15" rx="1.5" fill="#C9A227"/>
+        </g>
+      </svg>
+      <div class="hidden sm:block w-px h-[30px] flex-none bg-white/30"></div>
+      <!-- El texto se oculta en celular, misma convención que ya usaban el stepper
+           (hidden lg:flex) y los datos del agente (hidden md:block): en 375px el
+           logo + los 3 botones + el avatar ya ocupan todo el ancho. Con el texto
+           visible y sin cortar, el avatar se salía 148px de la pantalla; con el
+           texto cortándose, el encabezado se estiraba a 3 líneas y 94px de alto.
+           El logo identifica la app y el nombre completo está en la pestaña. -->
+      <div class="hidden sm:block leading-tight whitespace-nowrap">
+        <!-- Blanco sólido a propósito: antes iba con background-clip:text sobre un
+             degradado, un truco que en algunos navegadores deja el texto INVISIBLE. -->
         <div class="font-head font-extrabold tracking-tight text-[15px] sm:text-[16px]">
-          Cotizador <span class="grad-text">Hogar Comprensivo</span>
+          Cotizador Hogar Comprensivo
         </div>
-        <div class="text-[11px] text-white/70 font-medium">Seguros del INS</div>
+        <div class="text-[11px] text-white/70 font-medium">Cotización y envío al cliente</div>
       </div>
     </div>
 
@@ -181,6 +213,7 @@
       <div class="w-9 h-9 rounded-full bg-white/15 ring-1 ring-white/30 flex items-center justify-center font-head font-bold text-[13px]">JC</div>
     </div>
   </div>
+  <div class="filete-sdi"></div>
 </header>
 
 <!-- hidden file input -->
@@ -344,7 +377,7 @@
                 </div>
                 <div class="text-right">
                   <div class="text-[10px] text-white/70">Nº estimación</div>
-                  <div id="docConsec" class="font-head font-bold text-[13px]">—</div>
+                  <div id="docConsec" class="cifra text-[13px]">—</div>
                 </div>
               </div>
               <div class="px-6 py-5">
@@ -860,7 +893,7 @@ function fillWorkspace(){
   d.rubros.slice(0,2).forEach((r,i)=>{
     sb.innerHTML += `<div class="rounded-xl ${i===0?'bg-[#f0f7ff] border border-[#dbeafe]':'bg-[#f0fdf6] border border-[#bbf7d0]'} px-3 py-2.5">
       <div class="text-[10.5px] font-semibold ${i===0?'text-[#0369a1]':'text-[#15803d]'}">${esc(r.rubro)}</div>
-      <div class="font-head font-bold text-[15px] text-[var(--navy)]">${fmtCRC(r.suma)}</div></div>`;
+      <div class="cifra text-[15px] text-[var(--navy)]">${fmtCRC(r.suma)}</div></div>`;
   });
   // chips
   const cb=document.getElementById('chipsBox'); cb.innerHTML='';
@@ -948,7 +981,7 @@ function renderDoc(){
   keptPayments().forEach(p=>{ const best=p.k==='anual';
     pt.innerHTML+=`<tr class="border-b border-[var(--line)] ${best?'bg-[#f0fdf6]':''}">
       <td class="py-2 font-semibold text-[var(--navy)]">${PAY_LABEL[p.k]}${best?' <span class="chip chip-green" style="font-size:9px;padding:1px 6px">mejor opción</span>':''}</td>
-      <td class="py-2 text-right font-head font-bold text-[var(--navy)]">${fmtCRC(p.amt)}</td></tr>`; });
+      <td class="py-2 text-right cifra text-[var(--navy)]">${fmtCRC(p.amt)}</td></tr>`; });
   // deducibles
   const dd=document.getElementById('docDed'); dd.innerHTML='';
   const codes=Object.keys(d.deducibles);
@@ -991,11 +1024,11 @@ function buildEmailHTML(){
   const covCards=covList.map(c=>{ const info=COV[c.code];
     return `<tr><td style="padding:6px 0;vertical-align:top;width:26px;font-size:16px">${info.icon}</td><td style="padding:6px 0;font-size:13px;color:#334155"><b style="color:#0c2340">${esc(info.nombre)}</b> — ${esc(info.linea)}</td></tr>`; }).join('');
   const _asistT=asistList();
-  const _asistCell=a=>a?`<td width="50%" valign="top" style="padding:9px 8px"><table cellpadding="0" cellspacing="0" width="100%"><tr><td valign="top" style="font-size:16px;width:24px;padding-right:6px;line-height:1.2">${a.ic}</td><td valign="top"><div style="font-family:'Sora',Arial,sans-serif;font-weight:700;color:#0c2340;font-size:12.5px">${esc(a.n)}</div><div style="font-size:11.5px;color:#475569;line-height:1.45;margin-top:1px">${esc(a.d)}</div></td></tr></table></td>`:'<td width="50%"></td>';
+  const _asistCell=a=>a?`<td width="50%" valign="top" style="padding:9px 8px"><table cellpadding="0" cellspacing="0" width="100%"><tr><td valign="top" style="font-size:16px;width:24px;padding-right:6px;line-height:1.2">${a.ic}</td><td valign="top"><div style="font-family:'Poppins',Arial,sans-serif;font-weight:700;color:#0c2340;font-size:12.5px">${esc(a.n)}</div><div style="font-size:11.5px;color:#475569;line-height:1.45;margin-top:1px">${esc(a.d)}</div></td></tr></table></td>`:'<td width="50%"></td>';
   let _asistRows=''; for(let i=0;i<_asistT.length;i+=2){ _asistRows+='<tr>'+_asistCell(_asistT[i])+_asistCell(_asistT[i+1])+'</tr>'; }
   const asistBlock=`<tr><td style="padding:18px 28px 4px"><table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:12px;overflow:hidden">
     <tr><td bgcolor="#0c2340" style="background:#0c2340;background:linear-gradient(120deg,#0c2340 0%,#0369a1 52%,#10b981 100%);padding:14px 16px">
-      <div style="font-family:'Sora',Arial,sans-serif;font-weight:700;color:#ffffff;font-size:14px">🛠️ ${esc(asistTitulo())}</div>
+      <div style="font-family:'Poppins',Arial,sans-serif;font-weight:700;color:#ffffff;font-size:14px">🛠️ ${esc(asistTitulo())}</div>
       <div style="font-size:11.5px;color:rgba(255,255,255,.85);margin-top:3px">Una llamada al <b style="color:#ffffff">800-800-8001</b> · 365 días · App INS Móvil y WhatsApp</div></td></tr>
     <tr><td style="padding:4px 8px 10px"><table width="100%" cellpadding="0" cellspacing="0">${_asistRows}</table></td></tr>
   </table></td></tr>`;
@@ -1007,7 +1040,7 @@ function buildEmailHTML(){
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#eef2f7;padding:22px 0"><tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:14px;overflow:hidden;max-width:600px;box-shadow:0 4px 22px rgba(12,35,64,.10)">
   <tr><td style="background:linear-gradient(120deg,#0c2340,#0369a1);padding:26px 28px;text-align:center">
-    <div style="font-family:'Sora','Helvetica',Arial,sans-serif;font-size:21px;font-weight:800;color:#ffffff;letter-spacing:-.01em">🏡 Hogar Comprensivo</div>
+    <div style="font-family:'Poppins','Helvetica',Arial,sans-serif;font-size:21px;font-weight:800;color:#ffffff;letter-spacing:-.01em">🏡 Hogar Comprensivo</div>
     <div style="font-size:12.5px;color:rgba(255,255,255,.82);margin-top:5px">Su hogar, protegido de forma integral · INS</div></td></tr>
 
   <tr><td style="padding:24px 28px 6px">
@@ -1243,7 +1276,7 @@ function buildFollowHogarEmail(e){
 <table width="100%" cellpadding="0" cellspacing="0" style="padding:22px 0"><tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:14px;overflow:hidden;max-width:600px;box-shadow:0 4px 22px rgba(12,35,64,.10)">
   <tr><td style="background:linear-gradient(120deg,#0c2340,#0369a1);padding:22px 28px;text-align:center;color:#fff">
-    <div style="font-family:'Sora',Arial,sans-serif;font-size:19px;font-weight:800">🏡 Hogar Comprensivo</div>
+    <div style="font-family:'Poppins',Arial,sans-serif;font-size:19px;font-weight:800">🏡 Hogar Comprensivo</div>
     <div style="font-size:12px;color:rgba(255,255,255,.82);margin-top:4px">Seguimiento a su cotización · INS</div></td></tr>
   <tr><td style="padding:24px 28px;color:#334155;font-size:14px;line-height:1.6">
     <p style="margin:0 0 12px">Estimado(a) <b style="color:#0c2340">${nombre}</b>, 👋</p>
