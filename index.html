@@ -595,6 +595,20 @@ const PAY_ORDER = ['anual','semestral','cuatrimestral','trimestral','bimestral',
 const PAY_DEFAULT_ON = ['anual','semestral','trimestral']; // el agente puede cambiar cualquiera
 const PAY_LABEL = { anual:'Anual', semestral:'Semestral', cuatrimestral:'Cuatrimestral', trimestral:'Trimestral', bimestral:'Bimestral', mensual:'Mensual', deduccion:'Deducción Mensual' };
 const PAY_HINT  = { anual:'1 pago al año', semestral:'cada 6 meses', cuatrimestral:'cada 4 meses', trimestral:'cada 3 meses', bimestral:'cada 2 meses', mensual:'cada mes', deduccion:'deducción mensual' };
+/* Etiquetas tal como las escribe el INS: "DEDUCCION MENSUAL" sin tilde y
+   "BIMESTRAL"/"BIMENSUAL" según la versión del informe. */
+const CUR_RX = /[¢₡]/;
+const PAY_LBL_RX = /^(DEDUCCI[OÓ]N\s+MENSUAL|CUATRIMESTRAL|BIMESTRAL|BIMENSUAL|TRIMESTRAL|SEMESTRAL|ANUAL|MENSUAL)$/i;
+function payKeyOf(s){
+  const t = String(s||'').toUpperCase();
+  if(/DEDUCCI/.test(t)) return 'deduccion';
+  if(/CUATRI/.test(t))  return 'cuatrimestral';
+  if(/BIME/.test(t))    return 'bimestral';
+  if(/TRIME/.test(t))   return 'trimestral';
+  if(/SEMES/.test(t))   return 'semestral';
+  if(/ANUAL/.test(t))   return 'anual';
+  return 'mensual';
+}
 
 /* Documentos requisito (se adjuntan y se listan en el correo) */
 const REQUISITOS = [
@@ -634,7 +648,7 @@ function waDigits(){ return (A('wa')||'').replace(/\D/g,''); }
    ============================================================ */
 async function pageLines(page, tol){
   const tc = await page.getTextContent();
-  const items = tc.items.map(i=>({ t:i.str, x:i.transform[4], y:i.transform[5] }));
+  const items = tc.items.map(i=>({ t:i.str, x:i.transform[4], y:i.transform[5], w:i.width||0, size:Math.abs(i.transform[0])||i.height||9.6 }));
   tol = tol||2.5;
   const sorted = items.slice().sort((a,b)=>b.y-a.y);
   const rows=[];
@@ -699,11 +713,14 @@ async function extractHogar(arrayBuffer){
       if(/^I\.?\s*V\.?\s*A\.?/i.test(r.text)){ const nums=r.text.match(/[\d][\d  .]*\d/g)||[]; d.iva=parseAmount(nums[nums.length-1]); continue; }
       if(/^Recargo/i.test(r.text)) continue;
       // Cobertura: "V: D.D Bienes Inmuebles 0.00000% ¢225 000 000 ¢109 238"
-      const cm = r.text.match(/^([A-Z]):\s*(.+)$/);
+      // Desde set 2026 el INS separa el código con PUNTO en las filas de asistencia
+      // ("T. Multiasistencia Hogar", "S. Multiasistencia Extendida") → se aceptan ":" y ".".
+      const cm = r.text.match(/^([A-Z])[:.]\s*(.+)$/);
       if(cm){
         const code = cm[1];
         const rest = cm[2];
-        const nums = (rest.match(/[¢₡]\s*[\d][\d  .]*\d|\bn\/a\b/gi)||[]).map(parseAmount).filter(v=>v!=null);
+        const nums = (rest.match(/[¢₡]\s*[\d][\d  .]*\d|[¢₡]\s*\d|\bn\/a\b/gi)||[]).map(parseAmount).filter(v=>v!=null);
+        if(!nums.length) continue;            // sin monto no es una fila de cobertura
         const suma = nums.length>=2 ? nums[nums.length-2] : null;
         const prima= nums.length>=1 ? nums[nums.length-1] : null;
         d.coberturas.push({ code, suma, prima });
@@ -719,6 +736,10 @@ async function extractHogar(arrayBuffer){
   for(const r of rows1){
     if(/^Detalle de Deducibles/i.test(r.text)){ inDed=true; continue; }
     if(!inDed) continue;
+    // El bloque termina donde arranca la siguiente sección del informe. Sin este corte,
+    // el texto de "Extensión de cobertura", los recargos y hasta la tabla de pagos
+    // (formato set 2026, que ya no cabe en la página 2) se pegaban al último deducible.
+    if(/^(Recargos y Descuentos|Extensi[oó]n de cobertura|Otras condiciones|Protecci[oó]n contra la inflaci[oó]n|Primas Seg[uú]n Formas de Pago)/i.test(r.text)){ inDed=false; continue; }
     const t=r.text;
     if(!t) continue;
     const hm = t.match(/^([A-Z])\s*-\s*(.+)$/); // "D -Convulsiones..." / "V - Daño..."
@@ -727,32 +748,58 @@ async function extractHogar(arrayBuffer){
   }
   flush();
 
-  // ----- Página 2: Formas de pago (con su coordenada Y para limpiar el PDF) -----
-  d.payments = {}; d.payY = {}; d.rowsToRemove = []; d.page2W=595; d.page2H=842;
-  if(pdf.numPages>=2){
-    const p2 = await pdf.getPage(2);
-    d.page2W = p2.view[2]; d.page2H = p2.view[3];
-    const rows2 = await pageLines(p2);
-    for(const r of rows2){
-      // "Deducción Mensual" contiene "MENSUAL"; "Bimestral"/"Bimensual" varían según el INS
-      let matched=null;
-      if(/DEDUCCI[OÓ]N\s+MENSUAL/i.test(r.text)) matched='deduccion';
-      else if(/\bCUATRIMESTRAL\b/i.test(r.text)) matched='cuatrimestral';
-      else if(/\bBIMESTRAL\b|\bBIMENSUAL\b/i.test(r.text)) matched='bimestral';
-      else if(/\bTRIMESTRAL\b/i.test(r.text)) matched='trimestral';
-      else if(/\bSEMESTRAL\b/i.test(r.text)) matched='semestral';
-      else if(/\bANUAL\b/i.test(r.text)) matched='anual';
-      else if(/\bMENSUAL\b/i.test(r.text)) matched='mensual';
-      if(!matched || d.payments[matched]!=null) continue;
-      const amt = parseAmount((r.text.match(/[¢₡]\s*[\d][\d  .]*\d/)||[])[0] || (r.text.match(/[\d][\d  .]*\d/)||[])[0]);
-      if(amt==null) continue;
-      d.payments[matched] = amt;
-      d.payY[matched] = r.y;
+  // ----- Formas de pago (con página, Y y cajas de texto para limpiar el PDF) -----
+  // OJO: desde set 2026 el INS manda el informe más compacto y la tabla se PARTE
+  // entre páginas — la fila ANUAL queda al pie de la página 1 y el resto arranca en
+  // la 2. Por eso se recorren TODAS las páginas y no solo la segunda.
+  d.payments={}; d.payY={}; d.payRows={}; d.pageGeo={}; d.rowsToRemove=[];
+  for(let pn=1; pn<=pdf.numPages; pn++){
+    const pg = await pdf.getPage(pn);
+    const rows = (pn===1) ? rows1 : await pageLines(pg);
+    let left = Infinity;
+    rows.forEach(r=>r.items.forEach(i=>{ if(i.t.trim()) left=Math.min(left, i.x); }));
+    d.pageGeo[pn] = { w:pg.view[2], h:pg.view[3], left:(isFinite(left)?left:47) };
+    for(const r of rows){
+      const it = r.items.filter(i=>i.t.trim());
+      if(it.length<1) continue;
+      // La fila de pago es SOLO etiqueta + monto; así ningún párrafo que diga
+      // "anual" o "mensualmente" se cuela como forma de pago.
+      const ci = it.findIndex(i=>CUR_RX.test(i.t));
+      let labTxt, amtTxt, labIt, amtIt, split=true;
+      if(ci>0){
+        labIt = it.slice(0,ci); amtIt = it.slice(ci);
+        labTxt = labIt.map(i=>i.t).join(' ').replace(/\s+/g,' ').trim();
+        amtTxt = amtIt.map(i=>i.t).join(' ').replace(/\s+/g,' ').trim();
+      } else {
+        const m = r.text.match(/^(.+?)\s*([¢₡][\s\d.,]*\d)$/);   // etiqueta y monto en un mismo item
+        if(!m) continue;
+        labTxt=m[1].trim(); amtTxt=m[2].trim(); labIt=it; amtIt=it; split=false;
+      }
+      if(!PAY_LBL_RX.test(labTxt)) continue;
+      if(!/^[¢₡][\s\d.,]*\d$/.test(amtTxt)) continue;
+      const k = payKeyOf(labTxt), amt = parseAmount(amtTxt);
+      if(amt==null || d.payments[k]!=null) continue;
+      const labX=Math.min.apply(null,labIt.map(i=>i.x)), labR=Math.max.apply(null,labIt.map(i=>i.x+i.w));
+      const amtX=Math.min.apply(null,amtIt.map(i=>i.x)), amtR=Math.max.apply(null,amtIt.map(i=>i.x+i.w));
+      d.payments[k]=amt; d.payY[k]=r.y;
+      d.payRows[k]={ page:pn, y:r.y, size:labIt[0].size||9.6, labTxt:labTxt, amtTxt:amtTxt, split:split,
+                     labX:labX, labR:labR, labCX:(labX+labR)/2,
+                     amtX:amtX, amtR:amtR, amtCX:(amtX+amtR)/2 };
+    }
+    // dónde arranca el texto que sigue a la tabla: el borrado de filas sobrantes
+    // nunca puede bajar de ahí
+    const here = Object.keys(d.payRows).filter(k=>d.payRows[k].page===pn);
+    if(here.length){
+      const minY = Math.min.apply(null, here.map(k=>d.payRows[k].y));
+      let nextY = -Infinity;
+      rows.forEach(r=>{ if(r.text && r.y < minY-1 && r.y > nextY) nextY = r.y; });
+      d.pageGeo[pn].nextY = isFinite(nextY) ? nextY : null;
     }
   }
+  d.page2W=(d.pageGeo[2]&&d.pageGeo[2].w)||595; d.page2H=(d.pageGeo[2]&&d.pageGeo[2].h)||842;
 
   if(!d.consecutivo && !d.cliente) throw new Error('No se reconoció el formato. ¿Es una cotización de Hogar Comprensivo del INS?');
-  if(Object.keys(d.payments).length===0) throw new Error('No se encontraron las formas de pago (Anual/Semestral/Trimestral) en la página 2.');
+  if(Object.keys(d.payments).length===0) throw new Error('No se encontraron las formas de pago (Anual/Semestral/Trimestral) en el PDF.');
 
   d.cliente = titleCase(d.cliente);
   return d;
@@ -772,40 +819,106 @@ function computeRowsToRemove(){
 
 function spaceMiles(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
 
+/* Escribe un texto centrado en `cx` con el MISMO ancho que traía el original.
+   El INS imprime la tabla en Tahoma condensada (~73%) y Helvetica sale más ancha:
+   sin este ajuste la fila reescrita se ve más grande que las que no se movieron.
+   Se usa el operador Tz de PDF (setCharacterSqueeze); si esta versión de pdf-lib
+   no lo trae, se cae a reducir el tamaño, que nunca desborda la celda. */
+function drawFitText(pg, font, txt, cx, y, size, targetW, ink){
+  const w = font.widthOfTextAtSize(txt, size);
+  const squeeze = window.PDFLib && window.PDFLib.setCharacterSqueeze;
+  const pct = (targetW>0 && w>0) ? Math.max(60, Math.min(100, Math.round(targetW/w*100))) : 100;
+  if(!squeeze){
+    const s2 = size*pct/100;
+    pg.drawText(txt, { x: cx - font.widthOfTextAtSize(txt,s2)/2, y, size:s2, font, color:ink });
+    return;
+  }
+  pg.pushOperators(squeeze(pct));
+  pg.drawText(txt, { x: cx - w*pct/200, y, size, font, color:ink });
+  pg.pushOperators(squeeze(100));
+}
+
+/* Tapa la etiqueta y el monto de una fila SIN tocar las líneas de la tabla */
+function wipeRowText(pg, r, size, X0, X1, white){
+  const y = r.y - size*0.34, h = size*1.3, pad = size*0.4;
+  if(r.split===false){ pg.drawRectangle({ x:X0+2, y, width:(X1-X0)-4, height:h, color:white, borderWidth:0 }); return; }
+  pg.drawRectangle({ x:r.labX-pad, y, width:(r.labR-r.labX)+pad*2, height:h, color:white, borderWidth:0 });
+  pg.drawRectangle({ x:r.amtX-pad, y, width:(r.amtR-r.amtX)+pad*2, height:h, color:white, borderWidth:0 });
+}
+
+/* Reconstruye la tabla "Primas Según Formas de Pago" cuando el agente apaga alguna
+   forma: sube las visibles para que queden contiguas y borra las celdas sobrantes.
+   TODA la geometría (paso entre filas, tamaño de letra, centro de cada columna y
+   ancho de la tabla) se MIDE del PDF, así sirve igual para el formato de jun 2026
+   (tabla completa en la página 2, letra 9,6 pt) que para el de set 2026 (letra
+   7,8 pt y tabla partida entre las páginas 1 y 2). */
 async function buildCleanPDF(){
   const src = S.pdfBytes;
   if(!src) throw new Error('No hay PDF cargado.');
   const d = S.data;
   const hidden = computeRowsToRemove();
-  const kept = keptPayments(); // {k, amt} en orden canónico
   if(!hidden.length || !window.PDFLib){
     return src; // nada que ocultar (o pdf-lib no disponible): se adjunta tal cual
   }
+  const rowsOf = d.payRows || {};
+  const present = PAY_ORDER.filter(k=> d.payments[k]!=null && rowsOf[k]);
+  if(!present.length) return src;
   const { PDFDocument, rgb, StandardFonts } = window.PDFLib;
   const doc = await PDFDocument.load(src.slice(0));
-  if(doc.getPageCount()<2) return src;
-  const p2 = doc.getPage(1);
   const font = await doc.embedFont(StandardFonts.Helvetica);
+  const INK = rgb(0.09,0.11,0.15), WHITE = rgb(1,1,1);
+  const pages = present.map(k=>rowsOf[k].page).filter((v,i,a)=>a.indexOf(v)===i);
 
-  // Geometría de la tabla "Primas Según Formas de Pago" (calibrada al formato INS):
-  // cuerpo de filas en Y bottom-up ~592..695, etiqueta centrada en x≈185, monto alineado a la derecha en x≈444.
-  const ys = PAY_ORDER.filter(k=>d.payY[k]!=null).map(k=>d.payY[k]);
-  const topY = ys.length ? Math.max(...ys) : 684;   // posición de la primera fila
-  const PITCH = 15, SIZE = 9.5, LABEL_CX = 185, AMT_RIGHT = 444;
+  for(const pn of pages){
+    if(doc.getPageCount() < pn) continue;
+    const onPage = present.filter(k=>rowsOf[k].page===pn).sort((a,b)=> rowsOf[b].y - rowsOf[a].y);
+    if(!onPage.some(k=>!S.payToggles[k])) continue;      // en esta página no se oculta nada
+    const pg = doc.getPage(pn-1);
+    const geo = (d.pageGeo && d.pageGeo[pn]) || { w:595, left:47 };
+    const first = rowsOf[onPage[0]];
+    const size = first.size || 9.6;
+    // paso entre filas = la menor distancia entre dos filas seguidas (el INS deja
+    // huecos cuando la cotización trae menos formas de pago que la plantilla)
+    let pitch = 0;
+    for(let i=1;i<onPage.length;i++){ const dy = rowsOf[onPage[i-1]].y - rowsOf[onPage[i]].y; if(dy>1 && (!pitch || dy<pitch)) pitch = dy; }
+    if(!pitch) pitch = size*1.5625;                      // una sola fila en la página
+    const t = size*0.0625;                               // grosor de la línea de la tabla
+    const topY = first.y;
+    const slotOf  = (y)=> Math.round((topY-y)/pitch);
+    const cellTop = (slot)=> topY - slot*pitch + size*1.125;   // borde superior de la celda
+    const X0 = geo.left, X1 = (geo.w||595) - geo.left;
+    // El INS dibuja SIEMPRE las 7 filas de la plantilla aunque la cotización traiga
+    // menos formas de pago: las celdas vacías van al final, o sea en la última página
+    // de la tabla. Hay que borrarlas también o quedan flotando debajo.
+    const isLast = (pn === pages[pages.length-1]);
+    const prevRows = present.filter(k=>rowsOf[k].page < pn).length;
+    const maxTextSlot = Math.max.apply(null, onPage.map(k=>slotOf(rowsOf[k].y)));
+    const lastSlot    = isLast ? Math.max(maxTextSlot, PAY_ORDER.length-1-prevRows) : maxTextSlot;
+    const firstHidden = Math.min.apply(null, onPage.filter(k=>!S.payToggles[k]).map(k=>slotOf(rowsOf[k].y)));
 
-  // 1) Borrar TODO el cuerpo de la tabla (sin tocar el encabezado "Forma de Pago / Cuota")
-  p2.drawRectangle({ x:128, y: topY-7-PITCH*6, width:345, height: PITCH*6+18, color:rgb(1,1,1), borderWidth:0 });
+    // 1) borrar el texto desde la primera fila oculta hacia abajo (las de arriba no se mueven)
+    onPage.forEach(k=>{ const r=rowsOf[k]; if(slotOf(r.y) >= firstHidden) wipeRowText(pg, r, size, X0, X1, WHITE); });
 
-  // 2) Redibujar SOLO las formas visibles, compactadas desde arriba
-  kept.forEach((p,i)=>{
-    const y = topY - i*PITCH;
-    const label = PAY_LABEL[p.k].toUpperCase();
-    const amt = '¢ ' + spaceMiles(p.amt);
-    const lw = font.widthOfTextAtSize(label, SIZE);
-    const aw = font.widthOfTextAtSize(amt, SIZE);
-    p2.drawText(label, { x: LABEL_CX - lw/2, y, size:SIZE, font, color:rgb(0.09,0.11,0.15) });
-    p2.drawText(amt,   { x: AMT_RIGHT - aw, y, size:SIZE, font, color:rgb(0.09,0.11,0.15) });
-  });
+    // 2) reescribir las visibles, compactadas desde esa misma fila
+    const movers = onPage.filter(k=>S.payToggles[k] && slotOf(rowsOf[k].y) >= firstHidden);
+    movers.forEach((k,i)=>{
+      const r = rowsOf[k], y = topY - (firstHidden+i)*pitch;
+      const lab = r.labTxt || PAY_LABEL[k].toUpperCase();
+      const amt = r.amtTxt || ('¢ ' + spaceMiles(d.payments[k]));
+      drawFitText(pg, font, lab, first.labCX, y, size, r.labR-r.labX, INK);
+      drawFitText(pg, font, amt, first.amtCX, y, size, r.amtR-r.amtX, INK);
+    });
+
+    // 3) borrar por completo las celdas que sobran (rejilla incluida), conservando
+    //    la línea inferior de la última fila visible para que la tabla quede cerrada
+    const usedLast = firstHidden + movers.length - 1;
+    if(usedLast < lastSlot){
+      const yTop = cellTop(usedLast+1) - t - 0.15;
+      let yBot = cellTop(lastSlot) - pitch - t - 0.8;
+      if(geo.nextY!=null) yBot = Math.max(yBot, geo.nextY + size*1.2);   // nunca invadir lo que sigue
+      if(yTop > yBot) pg.drawRectangle({ x:X0-1.5, y:yBot, width:(X1-X0)+3, height:yTop-yBot, color:WHITE, borderWidth:0 });
+    }
+  }
   return await doc.save();
 }
 
@@ -944,7 +1057,8 @@ function renderPayments(){
 
 function renderCoverages(){
   const d=S.data, g=document.getElementById('covGrid'); g.innerHTML='';
-  d.coberturas.forEach(c=>{
+  const covs=covsToShow();
+  covs.forEach(c=>{
     const info=covInfo(c.code);
     const card=document.createElement('div');
     card.className='text-left rounded-xl border border-[#bbf7d0] bg-[#f0fdf6] px-3 py-2.5';
@@ -955,10 +1069,17 @@ function renderCoverages(){
       ${c.prima?`<div class="text-[10.5px] text-slate-500 mt-.5">Prima: ${fmtCRC(c.prima)}</div>`:''}`;
     g.appendChild(card);
   });
-  document.getElementById('covCount').textContent = d.coberturas.length+' coberturas';
+  document.getElementById('covCount').textContent = covs.length+' coberturas';
 }
 
-function visibleCoverages(){ return S.data.coberturas.filter(c=>COV[c.code]); }
+/* El Plan Extendido (S) YA incluye la Multiasistencia básica (T). El informe nuevo
+   (set 2026) lista las dos filas, así que cuando vienen juntas se muestra solo la
+   extendida: si no, el correo repite la asistencia dos veces. */
+function covsToShow(){
+  const list = (S.data && S.data.coberturas) || [];
+  return list.some(c=>c.code==='S') ? list.filter(c=>c.code!=='T') : list;
+}
+function visibleCoverages(){ return covsToShow().filter(c=>COV[c.code]); }
 function keptPayments(){ const d=S.data; return PAY_ORDER.filter(k=>d.payments[k]!=null && S.payToggles[k]).map(k=>({k,amt:d.payments[k]})); }
 
 function renderDoc(){
@@ -972,7 +1093,7 @@ function renderDoc(){
   pairs.forEach((p,i)=>{ meta.innerHTML+=`<div class="${p[0]==='Ubicación'?'col-span-2':''}"><span class="text-slate-400">${p[0]}</span><div class="font-semibold text-[var(--navy)]">${esc(p[1]||'—')}</div></div>`; });
   // coberturas
   const ct=document.getElementById('docCovRows'); ct.innerHTML='';
-  d.coberturas.forEach(c=>{ const info=covInfo(c.code);
+  covsToShow().forEach(c=>{ const info=covInfo(c.code);
     ct.innerHTML+=`<tr class="border-b border-[var(--line)]"><td class="py-1.5 w-7 align-top">${info.icon}</td>
       <td class="py-1.5"><b class="text-[var(--navy)]">${esc(info.nombre)}</b><div class="text-slate-500 text-[11.5px]">${esc(info.linea)}</div></td>
       <td class="py-1.5 text-right whitespace-nowrap text-slate-600 align-top">${c.prima?fmtCRC(c.prima):''}</td></tr>`; });

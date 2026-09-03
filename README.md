@@ -5,7 +5,7 @@ App web de un solo archivo (`index.html`) para cotizar el seguro **Hogar Compren
 ## Qué hace
 1. El agente **carga el PDF** de la cotización del INS (el "Informe de Estimación Provisional de Primas").
 2. La app **extrae** los datos: cliente, propiedad, sumas aseguradas, coberturas con sus primas, deducibles y las formas de pago.
-3. **Formas de pago con toggles:** el agente enciende/apaga cada forma de pago (Anual, Semestral, Cuatrimestral, Trimestral, Bimestral, Mensual, Deducción Mensual). Por defecto quedan visibles **Anual, Semestral y Trimestral**. Las que se apagan se **eliminan del PDF**: la tabla "Primas Según Formas de Pago" de la página 2 se **redibuja limpia y contigua** con solo las visibles (pdf-lib: borra el cuerpo y reescribe las filas, sin huecos).
+3. **Formas de pago con toggles:** el agente enciende/apaga cada forma de pago (Anual, Semestral, Cuatrimestral, Trimestral, Bimestral, Mensual, Deducción Mensual). Por defecto quedan visibles **Anual, Semestral y Trimestral**. Las que se apagan se **eliminan del PDF**: la tabla "Primas Según Formas de Pago" se **redibuja limpia y contigua** con solo las visibles (pdf-lib), aunque el INS la parta entre las páginas 1 y 2.
 4. Presenta un **resumen amigable** del seguro + **deducibles por cobertura**.
 5. Arma una **plantilla de correo HTML** (solo texto + colores, sin imágenes). Tras las formas de pago incluye un bloque de **requisitos** (los 5 documentos) con el mensaje «si está de acuerdo, complete los documentos adjuntos», y los **adjunta** (carpeta `requisitos/`). El saludo usa el **nombre de pila** (editable).
 6. **Envía por Gmail** la cotización limpia + los 5 requisitos (6 adjuntos, ~5 MB).
@@ -34,9 +34,13 @@ Segunda plataforma del repo (sub-página `poliza/index.html`, gemela del `/poliz
 3. El correo del agente en Configuración (⚙️) debe coincidir con la cuenta de Gmail que autoriza el envío.
 
 ## Notas de calibración
-- La extracción está calibrada contra el PDF real "Hogar Comprensivo - Intermediarios" (consecutivo `CT-TMP-AAAA-NNNNNNNN`, página 1 datos + coberturas + deducibles, página 2 formas de pago).
+- La extracción está calibrada contra el PDF real "Hogar Comprensivo - Intermediarios" (consecutivo `CT-TMP-AAAA-NNNNNNNN`, página 1 datos + coberturas + deducibles, formas de pago al final).
 - El PDF **no trae correo ni teléfono** del cliente: el agente los escribe a mano.
-- La limpieza con coordenadas (pdf-lib) está afinada para autos; para Hogar es defensiva (este formato no trae filas a quitar). Si aparece un PDF con 7 formas, recalibrar `buildCleanPDF()`.
+- **Dos formatos del informe (set 2026):** el INS reimprimió el "Informe de Estimación Provisional de Primas" más compacto (letra 7,8 pt en vez de 9,6 pt, con un párrafo de venta al inicio y encabezado de color en la página 2). Consecuencias, todas contempladas:
+  - La tabla **"Primas Según Formas de Pago" se parte entre páginas**: la fila **ANUAL** queda al pie de la página 1 y el resto arranca en la 2. La extracción recorre **todas** las páginas.
+  - Las filas de asistencia vienen con **punto** en vez de dos puntos (`T. Multiasistencia Hogar`, `S. Multiasistencia Extendida`). Sin esto no se detectaba la cobertura **S** y el correo mostraba la asistencia básica (6 servicios) en pólizas con la extendida (9).
+  - El bloque de **deducibles** corta en la siguiente sección del informe (`Recargos y Descuentos`, `Extensión de cobertura`, `Otras condiciones`…): antes se le pegaba el texto que venía después.
+- `buildCleanPDF()` **mide** del PDF el paso entre filas, el tamaño de letra, el centro de cada columna y el ancho de la tabla, así que sirve para los dos formatos y para tablas partidas entre páginas. Borra solo el texto de las filas que se mueven (la cuadrícula del INS queda intacta), reescribe las visibles con el operador `Tz` para que conserven el ancho original y borra por completo las celdas sobrantes.
 
 ## Configuración del agente
 Botón ⚙️ (arriba a la derecha): nombre, correo, licencia SUGESE, WhatsApp y web. Se guarda en `localStorage`. Por defecto: Juan Carlos Hernández · Lic. SUGESE 08-1318 · jhernandez@segurosdelins.com · WhatsApp 8822-1348.
