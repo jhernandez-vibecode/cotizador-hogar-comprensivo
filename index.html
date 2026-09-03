@@ -304,8 +304,8 @@
           <div class="grid grid-cols-2 gap-2.5">
             <label class="col-span-2 block"><span class="text-[11px] font-semibold text-slate-500">Cliente (nombre completo)</span>
               <input id="fCliente" type="text" oninput="syncAll()" class="mt-1 w-full px-3 py-2 rounded-lg border border-[var(--line)] text-[13px] ring-focus"></label>
-            <label class="col-span-2 block"><span class="text-[11px] font-semibold text-slate-500">Nombre para el saludo del correo</span>
-              <input id="fSaludo" type="text" oninput="renderMail()" placeholder="Ej: María" class="mt-1 w-full px-3 py-2 rounded-lg border border-[var(--line)] text-[13px] ring-focus"></label>
+            <label class="col-span-2 block"><span class="text-[11px] font-semibold text-slate-500">Nombre para el saludo del correo <span class="font-normal text-slate-400">— viene completo, recortalo si querés</span></span>
+              <input id="fSaludo" type="text" oninput="renderMail()" placeholder="Ej: María Paula Becerra" class="mt-1 w-full px-3 py-2 rounded-lg border border-[var(--line)] text-[13px] ring-focus"></label>
             <label class="block"><span class="text-[11px] font-semibold text-slate-500">Correo del cliente *</span>
               <input id="fEmail" type="email" placeholder="correo@cliente.com" oninput="syncAll()" class="mt-1 w-full px-3 py-2 rounded-lg border border-[var(--line)] text-[13px] ring-focus"></label>
             <label class="block"><span class="text-[11px] font-semibold text-slate-500">Teléfono</span>
@@ -987,16 +987,16 @@ async function fetchRequisitos(){
 /* ============================================================
    RENDER · panel izquierdo + previews
    ============================================================ */
-/* El nombre viene PRIMERO en el PDF del INS (ej. "MARIA PAULA BECERRA GONZALEZ" → "María"). */
-function firstName(full){ const p=titleCase(full).split(/\s+/).filter(Boolean); return p[0]||''; }
-
 function syncAll(){ renderDoc(); renderMail(); }
 
 function fillWorkspace(){
   const d=S.data;
   initPayToggles();
   document.getElementById('fCliente').value = d.cliente||'';
-  document.getElementById('fSaludo').value = firstName(d.cliente)||'';
+  // El saludo arranca con el NOMBRE COMPLETO tal como lo escribe el INS: el orden
+  // cambia por cotización (a veces apellidos primero) y adivinar el nombre de pila
+  // saludaba al cliente por el apellido. El agente recorta si quiere.
+  document.getElementById('fSaludo').value = d.cliente||'';
   document.getElementById('fUbic').value = [d.distrito,d.canton,d.provincia].filter(Boolean).join(', ');
   document.getElementById('wsFileName').textContent = S.fileName || 'cotización.pdf';
   const nPay=Object.keys(d.payments).length;
@@ -1124,7 +1124,7 @@ function attachName(){ const c=(S.data.consecutivo||'cotizacion').replace(/[^A-Z
 
 function buildEmailHTML(){
   const d=S.data;
-  const nombre=(document.getElementById('fSaludo').value||'').trim() || firstName(document.getElementById('fCliente').value) || 'Estimado(a)';
+  const nombre=(document.getElementById('fSaludo').value||'').trim() || (document.getElementById('fCliente').value||'').trim() || 'Estimado(a)';
   const incReq=document.getElementById('fIncReq').checked;
   const nota=(document.getElementById('fNota').value||'').trim();
   const reqBlock = incReq ? `
@@ -1353,6 +1353,7 @@ function saveHistorySend(to){
   const e={ id:newHistId(), date:new Date().toISOString(),
     client:document.getElementById('fCliente').value, email:to,
     cedula:d.cedula||'', consec:d.consecutivo||'', suma:suma, anual:(d.payments&&d.payments.anual)||null,
+    saludo:(document.getElementById('fSaludo').value||'').trim(),   // el que aprobó el agente: lo reusan los seguimientos
     estado:'pendiente', waCliente:(document.getElementById('fTel').value||'').trim(), agentName:A('name') };
   const arr=loadHist(); arr.unshift(e); if(arr.length>HIST_MAX) arr.length=HIST_MAX; saveHistArr(arr);
   updateStatsBadge();
@@ -1381,17 +1382,22 @@ function computeHistStats(entries){ const list=Array.isArray(entries)?entries:[]
 function _normS(s){ const t=String(s==null?'':s).normalize('NFD'); let o=''; for(let i=0;i<t.length;i++){ const c=t.charCodeAt(i); if(c>=0x0300&&c<=0x036f) continue; o+=t.charAt(i); } return o.toLowerCase().replace(/[\s\-._]/g,''); }
 function histMatches(e,q){ const n=_normS(q); if(!n) return true; if(!e) return false; return _normS(e.client).indexOf(n)!==-1||_normS(e.cedula).indexOf(n)!==-1||_normS(e.consec).indexOf(n)!==-1||_normS(e.email).indexOf(n)!==-1; }
 
+/* Saludo del seguimiento = el que el agente aprobó al enviar la cotización.
+   Los registros viejos no lo traen: se cae al nombre completo (nunca al primer
+   token, porque el INS a veces pone los apellidos primero). */
+function histSaludo(e){ return (e && (e.saludo||'').trim()) || (e && e.client) || 'Estimado(a)'; }
+
 /* WhatsApp de seguimiento — web.whatsapp.com/send (wa.me corrompe emojis) */
 function buildWaFollowHogar(e){
   const ag=e.agentName||A('name')||''; const firma=ag?(' '+ag+', su agente de seguros del INS.'):' su agente de seguros del INS.';
-  const msg='Hola '+(e.client||'')+', le saluda'+firma+' Días atrás le envié por correo la cotización de su seguro de Hogar Comprensivo del INS. ¿Tuvo chance de revisarla? Con gusto le aclaro cualquier duda o le ayudo a avanzar con la póliza cuando lo desee. Quedo atento. 🙂';
+  const msg='Hola '+histSaludo(e)+', le saluda'+firma+' Días atrás le envié por correo la cotización de su seguro de Hogar Comprensivo del INS. ¿Tuvo chance de revisarla? Con gusto le aclaro cualquier duda o le ayudo a avanzar con la póliza cuando lo desee. Quedo atento. 🙂';
   const raw=String(e.waCliente||'').replace(/\D/g,''); let phone=''; if(raw) phone=raw.startsWith('506')?raw:'506'+raw;
   return 'https://web.whatsapp.com/send/?'+(phone?'phone='+phone+'&':'')+'text='+encodeURIComponent(msg);
 }
 
 /* ---- correo de seguimiento (texto + color, sin imágenes) ---- */
 function buildFollowHogarEmail(e){
-  const nombre=esc(firstName(e.client)||e.client||'Estimado(a)');
+  const nombre=esc(histSaludo(e));
   return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"></head>
 <body style="margin:0;padding:0;background:#eef2f7;font-family:'Inter',Arial,sans-serif">
 <table width="100%" cellpadding="0" cellspacing="0" style="padding:22px 0"><tr><td align="center">
