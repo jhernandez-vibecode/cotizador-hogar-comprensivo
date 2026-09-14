@@ -1,0 +1,13 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Correo demo</title></head>
+<body style="margin:0">
+<iframe id="f" src="mockup-consola.html?demo" style="position:absolute;width:1px;height:1px;opacity:0"></iframe>
+<script>
+document.getElementById('f').addEventListener('load', function(){
+  var w = this.contentWindow;
+  setTimeout(function(){
+    var html = w.buildEmailHTML();
+    document.open(); document.write(html); document.close();
+  }, 800);
+});
+</script>
+</body></html>

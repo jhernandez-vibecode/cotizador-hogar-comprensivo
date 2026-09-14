@@ -1,0 +1,49 @@
+
+<!-- LÍNEA CLARA SDI (14 sep 2026): la hoja compartida del repo, de última para ganar por orden,
+     y abajo lo propio de este módulo (.btn, .inp, .step, .doc, .badge, vistas). -->
+<link rel="stylesheet" href="../linea-clara.css">
+<style>
+  /* --- lo propio de /poliza/ sobre la línea clara --- */
+  .hdr-name{font-size:12.5px;font-weight:600;color:var(--lc-ink)}
+  .lc-nav .step{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--lc-ink-2);cursor:pointer;background:none;border:none;font-family:inherit;white-space:nowrap;padding:0}
+  .lc-nav .step.on{color:var(--lc-ink)}
+  .lc-nav .step-dot{width:24px;height:24px;border-radius:999px;border:1px solid var(--lc-line);background:#fff;color:var(--lc-ink-3);display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:600}
+  .lc-nav .step.on .step-dot{background:var(--lc-blue);border-color:var(--lc-blue);color:#fff}
+  .lc-nav .step-sep{display:none}
+  body .btn{border-radius:999px;font-family:var(--font-body);font-weight:600;min-height:40px;padding:0 18px}
+  body .btn-primary{background:var(--lc-blue)} body .btn-primary:hover{background:var(--lc-blue-ink);filter:none}
+  body .btn-ghost{background:#fff;color:var(--lc-ink-2);border:1px solid var(--lc-line-btn)} body .btn-ghost:hover{background:var(--lc-blue-soft);color:var(--lc-blue);border-color:var(--lc-blue)}
+  body .btn-send{background:var(--lc-blue);min-height:46px;font-size:14.5px} body .btn-send:hover{background:var(--lc-blue-ink);filter:none}
+  body .inp{border:1px solid var(--lc-line-btn);border-radius:10px;font-family:var(--font-body)}
+  body .inp:focus{border-color:var(--lc-blue);box-shadow:0 0 0 3px var(--lc-blue-soft)}
+  body .inp.need{border-color:var(--lc-warn-tx);background:#fff}
+  body .lab{color:var(--lc-ink-3);letter-spacing:.01em}
+  body .lab.req::after{color:var(--lc-warn-tx)}
+  body .note{color:var(--lc-ink-2)}
+  body h2.font-head{font-size:20px;font-weight:500;letter-spacing:-.025em;color:var(--lc-ink)}
+  body #v4 .font-head{font-size:24px}
+  body .card{border-radius:24px}
+  body .doc{border-radius:14px;border-color:var(--lc-line)}
+  body .doc .nm{color:var(--lc-ink)}
+  body .badge{border-radius:999px;text-transform:none;letter-spacing:.01em;font-size:11px;padding:4px 10px}
+  body .badge.up{background:var(--lc-blue-soft);color:var(--lc-blue)} body .badge.std{background:var(--lc-ok-bg);color:var(--lc-ok-tx)}
+  body .rm{color:var(--lc-ink-3)} body .rm:hover{background:var(--lc-band);color:var(--lc-ink)}
+  body .dz{border:1.5px dashed var(--lc-line-btn);border-radius:24px}
+  body .dz.hot{border-color:var(--lc-blue);background:var(--lc-blue-soft)}
+  body .prog{background:var(--lc-line-soft)} body .prog>i{background:var(--lc-blue)}
+  body .frame{border-radius:16px;background:#F4F7FA;border-color:var(--lc-line)}
+  body #agNudge{background:var(--lc-band)!important;border-color:transparent!important;border-radius:20px}   /* contra el style="" ámbar del HTML */
+  body #agNudge div{color:var(--lc-ink-2)} body #agNudge a{color:var(--lc-blue)}
+  body #uploadErr{background:var(--lc-band)!important;color:var(--lc-ink)!important;border-radius:16px}          /* contra el style="" rojo del HTML */
+  body #v1 .rounded-xl.bg-white{background:var(--lc-band);border-color:transparent;border-radius:16px}
+  body #v2 .bg-\[\#f0fdf6\]{background:var(--lc-band);border-color:transparent;color:var(--lc-ink-2);border-radius:16px}
+  body #v2 .bg-\[\#f0fdf6\] b{color:var(--lc-ink)}
+  body #v4 .bg-\[\#dcfce7\]{background:var(--lc-ok-bg);color:var(--lc-ok-tx)}
+  body #covChips .chip-green::before{display:none}   /* chips de datos, no estados */
+  body .view.on{animation:lcIn .5s var(--lc-ease) both}
+  body #toast{border-radius:999px;background:var(--lc-ink);box-shadow:var(--lc-shadow)}
+  body #toast.err{background:#B3261E} body #toast.ok{background:var(--lc-ok-tx)}
+  body .modal{background:rgba(27,31,35,.45)}
+  body .spin{border-color:var(--lc-line);border-top-color:var(--lc-blue)}
+  @media (max-width:640px){ body .lc-nav .acts .lbl{display:inline} }
+</style>

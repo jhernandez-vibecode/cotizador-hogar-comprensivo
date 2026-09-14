@@ -9,7 +9,8 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,400..700&family=Google+Sans+Code:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
@@ -18,9 +19,9 @@
   body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
     background:radial-gradient(1100px 480px at 12% -8%,rgba(3,105,161,.10),transparent 60%),radial-gradient(1000px 520px at 100% 0%,rgba(16,163,74,.10),transparent 55%),var(--bg);
     color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh}
-  /* Tipografia SDI: Poppins en titulos, Inter en el cuerpo, JetBrains Mono en cifras. */
-  h1,h2,h3,h4,.font-head{font-family:'Poppins',system-ui,sans-serif}
-  .cifra{font-family:'JetBrains Mono',ui-monospace,'SF Mono',monospace;font-weight:700;font-variant-numeric:tabular-nums}
+  /* Tipografía SDI v1.3: Google Sans Flex + Google Sans Code; la cara vive en ../linea-clara.css */
+  h1,h2,h3,h4,.font-head{font-family:'Google Sans Flex','Inter',system-ui,sans-serif}
+  .cifra{font-family:'Google Sans Code',ui-monospace,'SF Mono',monospace;font-weight:500;font-variant-numeric:tabular-nums}
   /* Filete de marca: la proporcion 60/25/10/5 del manual hecha linea. */
   .filete-sdi{height:4px;background:linear-gradient(to right,#0369A1 0 60%,#0D9488 60% 85%,#EA580C 85% 95%,#C9A227 95% 100%)}
   .grad-bar{background:linear-gradient(90deg,var(--navy) 0%,var(--blue) 48%,var(--green-2) 100%)}
@@ -35,7 +36,7 @@
   .lab{display:block;font-size:11.5px;font-weight:600;color:#475569;margin:0 0 4px}
   .lab.req::after{content:" *";color:#ef4444}
   .lab-hint{font-weight:400;color:#94a3b8}
-  .btn{border:none;border-radius:11px;padding:11px 18px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;transition:.15s}
+  .btn{border:none;border-radius:11px;padding:11px 18px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
   .btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{filter:brightness(1.08)}
   .btn-ghost{background:#eef2f7;color:#334155}.btn-ghost:hover{background:#e2e8f0}
   .btn-send{background:linear-gradient(90deg,var(--green),var(--green-2));color:#fff;width:100%}.btn-send:hover{filter:brightness(1.05)}
@@ -66,18 +67,65 @@
   .spin{width:44px;height:44px;border:4px solid #e2e8f0;border-top-color:var(--blue);border-radius:50%;animation:sp 1s linear infinite;margin:0 auto}
   @keyframes sp{to{transform:rotate(360deg)}}
 </style>
+<!-- LÍNEA CLARA SDI (14 sep 2026): la hoja compartida del repo, de última para ganar por orden,
+     y abajo lo propio de este módulo (.btn, .inp, .step, .doc, .badge, vistas). -->
+<link rel="stylesheet" href="../linea-clara.css">
+<style>
+  /* --- lo propio de /poliza/ sobre la línea clara --- */
+  .hdr-name{font-size:12.5px;font-weight:600;color:var(--lc-ink)}
+  .lc-nav .step{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--lc-ink-2);cursor:pointer;background:none;border:none;font-family:inherit;white-space:nowrap;padding:0}
+  .lc-nav .step.on{color:var(--lc-ink)}
+  .lc-nav .step-dot{width:24px;height:24px;border-radius:999px;border:1px solid var(--lc-line);background:#fff;color:var(--lc-ink-3);display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:600}
+  .lc-nav .step.on .step-dot{background:var(--lc-blue);border-color:var(--lc-blue);color:#fff}
+  .lc-nav .step-sep{display:none}
+  body .btn{border-radius:999px;font-family:var(--font-body);font-weight:600;min-height:40px;padding:0 18px}
+  body .btn-primary{background:var(--lc-blue)} body .btn-primary:hover{background:var(--lc-blue-ink);filter:none}
+  body .btn-ghost{background:#fff;color:var(--lc-ink-2);border:1px solid var(--lc-line-btn)} body .btn-ghost:hover{background:var(--lc-blue-soft);color:var(--lc-blue);border-color:var(--lc-blue)}
+  body .btn-send{background:var(--lc-blue);min-height:46px;font-size:14.5px} body .btn-send:hover{background:var(--lc-blue-ink);filter:none}
+  body .inp{border:1px solid var(--lc-line-btn);border-radius:10px;font-family:var(--font-body)}
+  body .inp:focus{border-color:var(--lc-blue);box-shadow:0 0 0 3px var(--lc-blue-soft)}
+  body .inp.need{border-color:var(--lc-warn-tx);background:#fff}
+  body .lab{color:var(--lc-ink-3);letter-spacing:.01em}
+  body .lab.req::after{color:var(--lc-warn-tx)}
+  body .note{color:var(--lc-ink-2)}
+  body h2.font-head{font-size:20px;font-weight:500;letter-spacing:-.025em;color:var(--lc-ink)}
+  body #v4 .font-head{font-size:24px}
+  body .card{border-radius:24px}
+  body .doc{border-radius:14px;border-color:var(--lc-line)}
+  body .doc .nm{color:var(--lc-ink)}
+  body .badge{border-radius:999px;text-transform:none;letter-spacing:.01em;font-size:11px;padding:4px 10px}
+  body .badge.up{background:var(--lc-blue-soft);color:var(--lc-blue)} body .badge.std{background:var(--lc-ok-bg);color:var(--lc-ok-tx)}
+  body .rm{color:var(--lc-ink-3)} body .rm:hover{background:var(--lc-band);color:var(--lc-ink)}
+  body .dz{border:1.5px dashed var(--lc-line-btn);border-radius:24px}
+  body .dz.hot{border-color:var(--lc-blue);background:var(--lc-blue-soft)}
+  body .prog{background:var(--lc-line-soft)} body .prog>i{background:var(--lc-blue)}
+  body .frame{border-radius:16px;background:#F4F7FA;border-color:var(--lc-line)}
+  body #agNudge{background:var(--lc-band)!important;border-color:transparent!important;border-radius:20px}   /* contra el style="" ámbar del HTML */
+  body #agNudge div{color:var(--lc-ink-2)} body #agNudge a{color:var(--lc-blue)}
+  body #uploadErr{background:var(--lc-band)!important;color:var(--lc-ink)!important;border-radius:16px}          /* contra el style="" rojo del HTML */
+  body #v1 .rounded-xl.bg-white{background:var(--lc-band);border-color:transparent;border-radius:16px}
+  body #v2 .bg-\[\#f0fdf6\]{background:var(--lc-band);border-color:transparent;color:var(--lc-ink-2);border-radius:16px}
+  body #v2 .bg-\[\#f0fdf6\] b{color:var(--lc-ink)}
+  body #v4 .bg-\[\#dcfce7\]{background:var(--lc-ok-bg);color:var(--lc-ok-tx)}
+  body #covChips .chip-green::before{display:none}   /* chips de datos, no estados */
+  body .view.on{animation:lcIn .5s var(--lc-ease) both}
+  body #toast{border-radius:999px;background:var(--lc-ink);box-shadow:var(--lc-shadow)}
+  body #toast.err{background:#B3261E} body #toast.ok{background:var(--lc-ok-tx)}
+  body .modal{background:rgba(27,31,35,.45)}
+  body .spin{border-color:var(--lc-line);border-top-color:var(--lc-blue)}
+  @media (max-width:640px){ body .lc-nav .acts .lbl{display:inline} }
+</style>
 </head>
 <body>
 
 <!-- ===================== HEADER ===================== -->
-<header class="grad-bar text-white">
-  <div class="max-w-[1200px] mx-auto px-4 sm:px-6 py-3 flex items-center gap-4">
-    <!-- IDENTIDAD SDI (8 ago 2026), igual que en el cotizador: es herramienta del
-         agente, así que manda Seguros Digitales SDI y las dos marcas no compiten en
-         el mismo bloque. Logo 08-sdi-logo-header.svg del kit, INLINE y VECTORIZADO
-         (las letras son curvas: no dependen de ninguna fuente instalada). -->
-    <svg class="h-[30px] w-auto flex-none" viewBox="0 0 184 90" role="img" aria-label="Seguros Digitales SDI">
-      <path d="M36.076 74.656Q28.04 74.656 23.038 72.483Q18.036 70.31 15.535 66.456Q13.034 62.602000000000004 12.624 57.763999999999996H19.02Q19.266 61.7 21.644 64.119Q24.022 66.538 27.917 67.686Q31.812 68.834 36.486000000000004 68.834Q43.374 68.834 47.392 66.415Q51.410000000000004 63.996 51.410000000000004 59.24Q51.410000000000004 56.370000000000005 49.401 54.607Q47.392 52.843999999999994 44.071 51.696Q40.75 50.548 36.814 49.605000000000004Q32.878 48.662 28.901 47.596000000000004Q24.924 46.53 21.603 44.89Q18.282 43.25 16.273 40.667Q14.264 38.083999999999996 14.264 34.065999999999995Q14.264 27.424 19.389000000000003 23.241999999999997Q24.514000000000003 19.059999999999995 34.682 19.059999999999995Q41.897999999999996 19.059999999999995 46.572 21.232999999999997Q51.246 23.406 53.583 26.932Q55.92 30.458 56.166000000000004 34.558H49.852000000000004Q49.36 30.458 45.751999999999995 27.628999999999998Q42.144 24.799999999999997 34.682 24.799999999999997Q30.09 24.799999999999997 27.22 25.701999999999998Q24.35 26.604 22.833000000000002 28.038999999999998Q21.316000000000003 29.473999999999997 20.783 31.031999999999996Q20.25 32.589999999999996 20.25 33.984Q20.25 36.69 22.259 38.370999999999995Q24.268 40.052 27.589 41.159Q30.91 42.266 34.928 43.168Q38.946 44.07 42.923 45.177Q46.9 46.284 50.221000000000004 47.965Q53.542 49.646 55.551 52.269999999999996Q57.56 54.894 57.56 58.994Q57.56 66.538 51.82 70.59700000000001Q46.08 74.656 36.076 74.656ZM64.572 74.0V19.716H87.45Q92.28800000000001 19.716 96.757 21.561Q101.226 23.406 104.752 26.932Q108.27799999999999 30.458 110.328 35.459999999999994Q112.378 40.461999999999996 112.378 46.858000000000004Q112.378 53.254 110.328 58.256Q108.27799999999999 63.257999999999996 104.752 66.78399999999999Q101.226 70.31 96.757 72.155Q92.28800000000001 74.0 87.45 74.0ZM70.722 68.178H87.20400000000001Q93.02600000000001 68.178 97.29 65.226Q101.554 62.274 103.891 57.436Q106.22800000000001 52.598 106.22800000000001 46.858000000000004Q106.22800000000001 41.036 103.891 36.198Q101.554 31.36 97.29 28.448999999999998Q93.02600000000001 25.537999999999997 87.20400000000001 25.537999999999997H70.722ZM119.71799999999999 74.0V19.716H125.868V74.0Z" fill="#FFFFFF"/>
+<!-- ===================== BARRA EN DOS NIVELES (línea clara SDI, 14 sep 2026) =====================
+     Mismos ids y onclick que el encabezado anterior: #s1..#s4 (goStep), #agName, #agAvatar. -->
+<header>
+  <div class="lc-filete"></div>
+  <div class="lc-topbar"><div class="in">
+    <svg viewBox="0 0 184 90" role="img" aria-label="Seguros Digitales SDI">
+      <path d="M36.076 74.656Q28.04 74.656 23.038 72.483Q18.036 70.31 15.535 66.456Q13.034 62.602000000000004 12.624 57.763999999999996H19.02Q19.266 61.7 21.644 64.119Q24.022 66.538 27.917 67.686Q31.812 68.834 36.486000000000004 68.834Q43.374 68.834 47.392 66.415Q51.410000000000004 63.996 51.410000000000004 59.24Q51.410000000000004 56.370000000000005 49.401 54.607Q47.392 52.843999999999994 44.071 51.696Q40.75 50.548 36.814 49.605000000000004Q32.878 48.662 28.901 47.596000000000004Q24.924 46.53 21.603 44.89Q18.282 43.25 16.273 40.667Q14.264 38.083999999999996 14.264 34.065999999999995Q14.264 27.424 19.389000000000003 23.241999999999997Q24.514000000000003 19.059999999999995 34.682 19.059999999999995Q41.897999999999996 19.059999999999995 46.572 21.232999999999997Q51.246 23.406 53.583 26.932Q55.92 30.458 56.166000000000004 34.558H49.852000000000004Q49.36 30.458 45.751999999999995 27.628999999999998Q42.144 24.799999999999997 34.682 24.799999999999997Q30.09 24.799999999999997 27.22 25.701999999999998Q24.35 26.604 22.833000000000002 28.038999999999998Q21.316000000000003 29.473999999999997 20.783 31.031999999999996Q20.25 32.589999999999996 20.25 33.984Q20.25 36.69 22.259 38.370999999999995Q24.268 40.052 27.589 41.159Q30.91 42.266 34.928 43.168Q38.946 44.07 42.923 45.177Q46.9 46.284 50.221000000000004 47.965Q53.542 49.646 55.551 52.269999999999996Q57.56 54.894 57.56 58.994Q57.56 66.538 51.82 70.59700000000001Q46.08 74.656 36.076 74.656ZM64.572 74.0V19.716H87.45Q92.28800000000001 19.716 96.757 21.561Q101.226 23.406 104.752 26.932Q108.27799999999999 30.458 110.328 35.459999999999994Q112.378 40.461999999999996 112.378 46.858000000000004Q112.378 53.254 110.328 58.256Q108.27799999999999 63.257999999999996 104.752 66.78399999999999Q101.226 70.31 96.757 72.155Q92.28800000000001 74.0 87.45 74.0ZM70.722 68.178H87.20400000000001Q93.02600000000001 68.178 97.29 65.226Q101.554 62.274 103.891 57.436Q106.22800000000001 52.598 106.22800000000001 46.858000000000004Q106.22800000000001 41.036 103.891 36.198Q101.554 31.36 97.29 28.448999999999998Q93.02600000000001 25.537999999999997 87.20400000000001 25.537999999999997H70.722ZM119.71799999999999 74.0V19.716H125.868V74.0Z" fill="#0369A1"/>
       <g transform="translate(143.87, 19.06)">
         <rect x="0" y="0" width="30" height="6.15" rx="1.5" fill="#0369A1"/>
         <rect x="0" y="16.48" width="30" height="6.15" rx="1.5" fill="#0D9488"/>
@@ -85,29 +133,25 @@
         <rect x="0" y="49.45" width="30" height="6.15" rx="1.5" fill="#C9A227"/>
       </g>
     </svg>
-    <div class="hidden sm:block w-px h-[30px] flex-none bg-white/30"></div>
-    <!-- El texto se oculta en celular, igual que en el cotizador: en 375px el logo
-         + "← Cotizador" + el avatar ya ocupan el ancho, y con el texto visible la
-         página quedaba con scroll horizontal. -->
-    <div class="hidden sm:block leading-tight whitespace-nowrap">
-      <!-- Blanco sólido: antes iba con background-clip:text sobre un degradado, que
-           en algunos navegadores deja el texto invisible. -->
-      <div class="font-head font-extrabold tracking-tight text-[15px] sm:text-[16px]">Envío de Póliza Activa</div>
-      <div class="text-[11px] text-white/70 font-medium">Hogar Comprensivo</div>
+    <div class="meta">
+      <div class="who"><div id="agName" class="hdr-name"></div></div>
+      <div id="agAvatar" class="av">JC</div>
     </div>
-    <nav class="hidden md:flex items-center gap-2.5 ml-4">
-      <button class="step on" id="s1" onclick="goStep(1)"><span class="step-dot">1</span>Cargar</button><span class="step-sep"></span>
-      <button class="step" id="s2" onclick="goStep(2)"><span class="step-dot">2</span>Revisar</button><span class="step-sep"></span>
-      <button class="step" id="s3" onclick="goStep(3)"><span class="step-dot">3</span>Correo</button><span class="step-sep"></span>
+  </div></div>
+  <div class="lc-nav"><div class="in">
+    <div class="prod">Envío de Póliza Activa<small>Hogar Comprensivo</small></div>
+    <nav id="stepper">
+      <button class="step on" id="s1" onclick="goStep(1)"><span class="step-dot">1</span>Cargar</button><span class="sep"></span>
+      <button class="step" id="s2" onclick="goStep(2)"><span class="step-dot">2</span>Revisar</button><span class="sep"></span>
+      <button class="step" id="s3" onclick="goStep(3)"><span class="step-dot">3</span>Correo</button><span class="sep"></span>
       <button class="step" id="s4" onclick="goStep(4)"><span class="step-dot">4</span>Enviado</button>
     </nav>
-    <div class="ml-auto flex items-center gap-2 text-white/85 text-[11px]">
-      <a href="../" class="text-white/80 hover:text-white text-[11.5px] mr-1" title="Volver al cotizador">← Cotizador</a>
-      <span id="agName" class="hidden sm:inline"></span>
-      <div id="agAvatar" class="w-8 h-8 rounded-full bg-white/15 ring-1 ring-white/30 flex items-center justify-center font-head font-bold text-[12px]">JC</div>
+    <div class="acts">
+      <a href="../" class="lc-pill" title="Volver al cotizador">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+        <span class="lbl">Cotizador</span></a>
     </div>
-  </div>
-  <div class="filete-sdi"></div>
+  </div></div>
 </header>
 
 <main class="max-w-[1200px] mx-auto px-4 sm:px-6 py-6">
@@ -125,7 +169,7 @@
       <p class="note mb-4">Arrastrá las <b>Condiciones Particulares</b> de la póliza emitida. Si trae <b>condiciones especiales</b> (gas, paneles solares, cargador VE, edificio desocupado) o el <b>comprobante de pago</b>, arrastralos también — se adjuntan igual. De las Condiciones Particulares extraigo los datos.</p>
 
       <div class="dz p-8 text-center" id="dz" tabindex="0" role="button" aria-label="Cargar PDF">
-        <div class="text-[42px] leading-none mb-2">📄</div>
+        
         <div class="font-head font-bold text-[14px] text-[var(--navy)]">Arrastrá los PDF o hacé clic para seleccionar</div>
         <div class="note mt-1">Podés cargar varios a la vez · solo PDF</div>
         <input type="file" id="fileInput" accept="application/pdf" multiple hidden>
@@ -213,7 +257,7 @@
       <div class="card soft p-5">
         <div class="flex items-center justify-between mb-2">
           <h2 class="font-head font-bold text-[15px] text-[var(--navy)]">Vista previa</h2>
-          <span class="chip chip-green">solo texto + color</span>
+          <span class="chip chip-green">Vista del cliente</span>
         </div>
         <iframe id="preview" class="frame" title="Vista previa del correo"></iframe>
       </div>
@@ -231,6 +275,21 @@
   </section>
 
 </main>
+
+<footer class="sdi-foot-agente"><div class="in">
+  <img src="../img/sdi-logo-compacto.svg" alt="Seguros Digitales SDI">
+  <p class="l1">Un producto de <strong>SDI · Seguros Digitales</strong></p>
+  <p class="l2">© 2026 · Propiedad intelectual de <strong>Juan Carlos Hernández Vargas</strong></p>
+  <details class="sdi-changelog">
+    <summary>Última actualización: 14 sep 2026 — cara nueva SDI y asistencia con los límites del INS</summary>
+    <ul>
+      <li><strong>14 sep 2026</strong> — Cara nueva (línea clara SDI) en el módulo y en el correo de póliza activa: fondo blanco, botones en píldora, un solo acento y el logo SDI oficial. La asistencia incluida (Hogar Total u Hogar Extendido) se muestra con los eventos y límites del dossier del INS. La extracción de las Condiciones Particulares y los adjuntos son los mismos.</li>
+      <li><strong>3 sep 2026</strong> — El saludo arranca con el nombre completo del cliente.</li>
+      <li><strong>8 ago 2026</strong> — Logotipo SDI y filete de marca en el encabezado.</li>
+      <li><strong>20 jul 2026</strong> — Módulo de envío de póliza activa: lee los dos layouts de las Condiciones Particulares 081_81B.</li>
+    </ul>
+  </details>
+</div></footer>
 
 <!-- Modal de envío -->
 <div class="modal hidden" id="sendModal">
@@ -282,33 +341,37 @@ const COV = {
   K:{icon:'⚖️', nombre:'Responsabilidad civil', linea:'Cubre daños a terceros (lesiones, muerte o daño a su propiedad), incluso por mascotas.'},
   M:{icon:'👷', nombre:'Riesgos del trabajo hogar', linea:'Protege a los trabajadores domésticos del hogar (solo en colones).'},
   P:{icon:'🚑', nombre:'Accidentes personales', linea:'Muerte accidental, incapacidad y gastos médicos por accidente.'},
-  T:{icon:'🛠️', nombre:'Multiasistencia Hogar (gratis)', linea:'Plomería, electricidad y cerrajería de emergencia, sin costo adicional.'},
-  S:{icon:'✨', nombre:'Multiasistencia Hogar extendida', linea:'Servicios de asistencia ampliados, incluso para mascotas y asistencia médica o de viaje.'}
+  T:{icon:'🛠️', nombre:'Multiasistencia Hogar (plan Hogar Total)', linea:'Fontanería, electricidad, cerrajería, cristales y un traslado, sin costo adicional.'},
+  S:{icon:'✨', nombre:'Multiasistencia Hogar extendida (plan Hogar Extendido)', linea:'Los mismos servicios con el doble de límite, más traslados, portones y destape de cañerías.'}
 };
 const COV_CODES = new Set(Object.keys(COV));
 function covInfo(code){ return COV[code] || {icon:'🛡️', nombre:'Cobertura '+code, linea:'Cobertura incluida en su póliza.'}; }
 
-const ASIST = [
-  {ic:'🔧', n:'Fontanería de emergencia', d:'Rotura de tuberías y llaves, con detección de fugas.', ext:false},
-  {ic:'🔑', n:'Cerrajería de emergencia', d:'Pérdida o robo de llaves y daño de cerraduras.', ext:false},
-  {ic:'💡', n:'Electricidad de emergencia', d:'Cortocircuito o falla eléctrica interna; restablece el suministro.', ext:false},
-  {ic:'🪟', n:'Rotura de cristales', d:'Mano de obra para reponer vidrios de puertas y ventanas al exterior.', ext:false},
-  {ic:'🏥', n:'Traslado a cita médica', d:'Transporte a tu cita médica programada, desde tu casa.', ext:false},
-  {ic:'✈️', n:'Traslado al aeropuerto', d:'Ida y vuelta entre tu casa y el aeropuerto.', ext:false},
-  {ic:'🚿', n:'Destape de cañerías', d:'Libera las cañerías obstruidas.', ext:true},
-  {ic:'🚪', n:'Portones eléctricos', d:'Reparación de emergencia por cables o poleas.', ext:true},
-  {ic:'🚰', n:'Instalación de grifería', d:'Mano de obra para cambiar grifos o llaves.', ext:true}
+/* Planes de asistencia INCLUIDOS con la póliza (dossier de asistencias del INS, sep 2026).
+   Cada servicio es [nombre, eventos por año, límite por evento en colones]. T (Hogar Total)
+   es gratis con V + D; S (Hogar Extendido) lo incluye y lo reemplaza. Copia literal del
+   catálogo del cotizador raíz, solo los dos planes que puede traer una póliza. */
+const ASIST_PLANES = [
+  {k:'T', n:'Hogar Total', incluida:'Gratis al contratar las coberturas V + D',
+   d:'Fontanería, electricidad, cerrajería y rotura de cristales, más un traslado a cita médica o al aeropuerto.',
+   nota:'Traslados de hasta 40 km; cada tramo residencia–aeropuerto cuenta como un evento. Límite por evento en colones o su equivalente en dólares según la moneda del contrato.',
+   s:[['Fontanería',3,26000],['Electricidad',3,26000],['Cerrajería',3,26000],['Rotura de cristales',3,26000],['Traslado a cita médica o aeropuerto',1,26000]]},
+  {k:'S', n:'Hogar Extendido',
+   d:'Los mismos servicios con el doble de límite, cuatro traslados, reparación de portones y destape de cañerías o instalación de grifería.',
+   nota:'Fontanería y electricidad incluyen ₡15.000 adicionales para materiales. Incluye y reemplaza al plan Hogar Total: los eventos y límites no se acumulan.',
+   s:[['Fontanería',3,52000],['Electricidad',3,52000],['Cerrajería',3,52000],['Rotura de cristales',3,52000],['Traslado a cita médica o aeropuerto',4,26000],['Reparación de portones',1,30000],['Destape de cañerías o instalación de grifería',2,26000]]}
 ];
 function asistPlan(){ const codes=(S.data&&S.data.coberturas||[]).map(c=>c.code); return codes.indexOf('S')>-1?'S':'T'; }
-function asistList(){ const ext=asistPlan()==='S'; return ASIST.filter(a=>ext||!a.ext); }
-function asistTitulo(){ return asistPlan()==='S' ? 'Multiasistencia Hogar Extendida — incluida' : 'Multiasistencia Hogar — incluida'; }
+function asistIncluida(){ const k=asistPlan(); return ASIST_PLANES.find(p=>p.k===k); }
+function asistTitulo(){ return 'Asistencia incluida · '+asistIncluida().n; }
+function asistLim(sv){ return sv[2]==null ? 'Sin límite' : sv[1]+' · '+fmtCRC(sv[2]); }
 
 /* ============================================================
    HELPERS (idénticos al cotizador)
    ============================================================ */
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function parseAmount(str){ const d=String(str||'').replace(/[^\d]/g,''); return d?parseInt(d,10):null; }
-function fmtCRC(n){ if(n==null||isNaN(n)) return '—'; return '₡'+Number(n).toLocaleString('es-CR'); }
+function fmtCRC(n){ if(n==null||isNaN(n)) return '—'; return '₡'+Number(n).toLocaleString('de-DE'); }
 function titleCase(s){ return String(s||'').toLowerCase().replace(/(^|[\s\-])(\p{L})/gu,(m,sep,ch)=>sep+ch.toUpperCase()); }
 function agent(){ try{ return JSON.parse(localStorage.getItem('hogar_agent'))||{}; }catch(e){ return {}; } }
 function A(k){ const a=agent(); return a[k] || CFG.DEFAULTS[k]; }
@@ -493,8 +556,8 @@ function fillReview(){
     cc.innerHTML+=`<span class="chip chip-green">${i.icon} ${esc(c.code)} · ${esc(i.nombre)}</span>`; }); }
   else cc.innerHTML='<span class="chip chip-amber">No leí coberturas — revisá el PDF</span>';
   document.getElementById('asistNote').innerHTML = asistPlan()==='S'
-    ? 'Con cobertura <b>S</b> → asistencia <b>Extendida</b>: 9 servicios.'
-    : 'Asistencia <b>Plan Básico (gratis)</b>: 6 servicios.';
+    ? 'Con cobertura <b>S</b> → plan <b>Hogar Extendido</b>: '+asistIncluida().s.length+' servicios con límites del dossier del INS.'
+    : 'Plan <b>Hogar Total</b> (gratis con V + D): '+asistIncluida().s.length+' servicios.';
   renderDocs();
 }
 function renderDocs(){
@@ -550,19 +613,29 @@ function prepEmail(){
 ['input'].forEach(ev=>{ ['mSaludo','mNota','mSubject'].forEach(id=>document.addEventListener(ev,e=>{ if(e.target && e.target.id===id) renderPreview(); })); });
 function renderPreview(){ const f=document.getElementById('preview'); f.srcdoc=buildEmail(); }
 
+// CORREO "PÓLIZA ACTIVA" · línea clara SDI (14 sep 2026), misma forma que el correo de
+// cotización: filete + barra INS en tinta, píldora de estado, titular, tarjeta de
+// confirmación, coberturas, asistencia incluida con sus límites, documentación,
+// contactos de emergencia aislados, firma y pie SDI. Tablas y estilos en línea, sin
+// webfonts. Los PNG viven en el repo raíz (img/), con URL absoluta.
+const EMAIL_IMG = 'https://hogarcomprensivo.appsegurosdigitales.com';
+const _LC_F = "Arial,Helvetica,sans-serif";
+const _LC_M = "'Courier New',Courier,monospace";
+
 function buildEmail(fixedOk){
-  const d=S.data||{};
+  const d=S.data||{}, F=_LC_F, M=_LC_M;
   const nombre = saludoName() || 'cliente';
   const nota = ((document.getElementById('mNota')||{}).value||'').trim();
-  const fam='Poppins,Helvetica,Arial,sans-serif', fbody='Inter,Helvetica,Arial,sans-serif';
   const ubic = [d.provincia,d.canton].filter(Boolean).join(', ');
+  const regla=`<table cellpadding="0" cellspacing="0" border="0" role="presentation" style="margin:0 0 10px"><tr><td bgcolor="#0D9488" style="background:#0D9488;width:28px;height:3px;font-size:0;line-height:0">&nbsp;</td></tr></table>`;
+  const kicker=t=>`<p style="margin:0 0 12px;font-size:12px;font-weight:bold;color:#6B7681;letter-spacing:.02em">${t}</p>`;
   const covList = (d.coberturas||[]).filter(c=>COV[c.code] && c.code!=='T' && c.code!=='S'); // T/S = asistencia, va en su propia sección
-  const covCards = covList.map(c=>{ const i=COV[c.code];
-    return `<tr><td style="padding:6px 0;vertical-align:top;width:26px;font-size:16px">${i.icon}</td><td style="padding:6px 0;font-size:13px;color:#334155"><b style="color:#0c2340">${esc(i.nombre)}</b> — ${esc(i.linea)}</td></tr>`; }).join('')
-    || '<tr><td style="font-size:13px;color:#334155;padding:6px 0">Ver el detalle de coberturas en las Condiciones Particulares adjuntas.</td></tr>';
-  const A_=asistList();
-  const cell=a=>a?`<td width="50%" valign="top" style="padding:9px 8px"><table cellpadding="0" cellspacing="0" width="100%"><tr><td valign="top" style="font-size:16px;width:24px;padding-right:6px;line-height:1.2">${a.ic}</td><td valign="top"><div style="font-family:${fam};font-weight:700;color:#0c2340;font-size:12.5px">${esc(a.n)}</div><div style="font-size:11.5px;color:#475569;line-height:1.45;margin-top:1px">${esc(a.d)}</div></td></tr></table></td>`:'<td width="50%"></td>';
-  let asistRows=''; for(let i=0;i<A_.length;i+=2){ asistRows+='<tr>'+cell(A_[i])+cell(A_[i+1])+'</tr>'; }
+  const covRows = covList.map(c=>{ const i=COV[c.code];
+    return `<tr><td style="padding:8px 0;border-top:1px solid #EDEFF2;font-size:13px;color:#5A6570;line-height:1.5"><b style="color:#1B1F23">${esc(i.nombre)}</b> — ${esc(i.linea)}</td></tr>`; }).join('')
+    || '<tr><td style="font-size:13px;color:#5A6570;padding:6px 0">Ver el detalle de coberturas en las Condiciones Particulares adjuntas.</td></tr>';
+  const inc=asistIncluida();
+  const svCell=sv=>sv?`<td width="50%" valign="top" style="padding:6px 8px 6px 0;border-top:1px solid #EDEFF2;font-size:12.5px;color:#1B1F23">${esc(sv[0])}<div style="font-family:${M};font-size:11px;color:#6B7681">${asistLim(sv)}</div></td>`:'<td width="50%"></td>';
+  let svRows=''; for(let i=0;i<inc.s.length;i+=2){ svRows+='<tr>'+svCell(inc.s[i])+svCell(inc.s[i+1])+'</tr>'; }
   // documentación adjunta (según lo cargado + fijos)
   const bullets=[], _seen=new Set();
   const _lbl={particulares:'Condiciones Particulares de su póliza',comprobante:'Comprobante de pago',especial:'Condiciones especiales aplicables',otro:'Documento adjunto'};
@@ -571,54 +644,97 @@ function buildEmail(fixedOk){
   const _fx = fixedOk || FIXED_DOCS.map(fd=>fd.file);
   if(_fx.some(n=>/Generales/i.test(n))) bullets.push('Condiciones Generales Hogar Comprensivo');
   if(_fx.some(n=>/Multiasistencia/i.test(n))) bullets.push('Condiciones de Multiasistencia Hogar');
-  const docBullets = bullets.map(b=>'✅ '+esc(b)).join('<br>');
+  const docBullets = bullets.map(b=>`<p style="margin:0 0 4px;font-size:12.5px;color:#1B1F23;padding-left:14px;text-indent:-14px">&ndash;&nbsp; ${esc(b)}</p>`).join('');
   const vig=(d.vigDesde&&d.vigHasta)?(d.vigDesde+' → '+d.vigHasta):'';
-  const notaBlock = nota? `<tr><td style="padding:4px 28px 0"><table width="100%" cellpadding="0" cellspacing="0" style="background:#fff7ed;border-left:4px solid #f59e0b;border-radius:8px"><tr><td style="padding:12px 14px;font-size:13px;color:#7c2d12;line-height:1.55">${esc(nota).replace(/\n/g,'<br>')}</td></tr></table></td></tr>`:'';
+  const notaBlock = nota? `<tr><td style="padding:22px 28px 0"><table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="background:#EEF4F9;border-radius:16px"><tr><td style="padding:14px 18px;font-size:13px;color:#1B1F23;line-height:1.6">${esc(nota).replace(/\n/g,'<br>')}</td></tr></table></td></tr>`:'';
   const web=String(A('web')||'').replace(/^https?:\/\//,'');
-  const waLink = waDigits()?('https://wa.me/506'+waDigits()):'';
+  const derecha = d.poliza ? 'P&oacute;liza N.&ordm; '+esc(d.poliza) : 'P&oacute;liza activa';
 
   return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${esc(subject())}</title></head>
-<body style="margin:0;padding:0;background:#eef2f7;font-family:${fbody}">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#eef2f7;padding:22px 0"><tr><td align="center">
-<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:14px;overflow:hidden;max-width:600px;box-shadow:0 4px 22px rgba(12,35,64,.10)">
-  <tr><td style="background:linear-gradient(120deg,#0c2340,#0369a1);padding:26px 28px;text-align:center">
-    <div style="font-family:${fam};font-size:21px;font-weight:800;color:#fff;letter-spacing:-.01em">🏡 Hogar Comprensivo</div>
-    <div style="font-size:12.5px;color:rgba(255,255,255,.82);margin-top:5px">Su póliza está activa · Instituto Nacional de Seguros</div></td></tr>
-  <tr><td style="padding:24px 28px 4px">
-    <p style="margin:0 0 12px;font-size:15px;font-weight:700;color:#0c2340;font-family:${fam}">Estimado(a) ${esc(nombre)}, 👋</p>
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#ecfdf5;border:1px solid #a7f3d0;border-left:4px solid #10b981;border-radius:10px">
-      <tr><td style="padding:14px 18px;font-size:13.5px;line-height:1.6;color:#065f46">
-        Es un gusto saludarle. Le confirmo que su póliza${d.poliza?(' <b style="color:#0c2340">N° '+esc(d.poliza)+'</b>'):''}${ubic?(', que protege su propiedad en <b style="color:#0c2340">'+esc(titleCase(ubic))+'</b>'):''}, <b style="color:#047857">ya se encuentra activa</b>. ✅
-        ${(vig||d.suma!=null)?('<div style="margin-top:8px;font-size:12px;color:#334155">'+(vig?('📅 Vigencia: <b>'+esc(vig)+'</b>'):'')+((vig&&d.suma!=null)?' &nbsp;·&nbsp; ':'')+(d.suma!=null?('🏦 Suma asegurada: <b>'+esc(fmtCRC(d.suma))+'</b>'):'')+'</div>'):''}
-      </td></tr></table></td></tr>
-  <tr><td style="padding:16px 28px 4px">
-    <div style="background:#f0fdf6;border-left:4px solid #10b981;border-radius:8px;padding:12px 14px">
-      <div style="font-weight:700;color:#15803d;font-size:13px;margin-bottom:6px;font-family:${fam}">🛡️ ¿Qué protege su póliza?</div>
-      <table width="100%" cellpadding="0" cellspacing="0">${covCards}</table></div></td></tr>
-  <tr><td style="padding:16px 28px 4px"><table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:12px;overflow:hidden">
-    <tr><td style="background:linear-gradient(120deg,#0c2340 0%,#0369a1 52%,#10b981 100%);padding:14px 16px">
-      <div style="font-family:${fam};font-weight:700;color:#fff;font-size:14px">🛠️ ${esc(asistTitulo())}</div>
-      <div style="font-size:11.5px;color:rgba(255,255,255,.88);margin-top:3px">Una llamada al <b style="color:#fff">800-800-8001</b> · 365 días · App INS Móvil y WhatsApp. El INS coordina y paga el servicio.</div></td></tr>
-    <tr><td style="padding:4px 8px 10px"><table width="100%" cellpadding="0" cellspacing="0">${asistRows}</table></td></tr>
-  </table></td></tr>
-  <tr><td style="padding:16px 28px 4px">
-    <div style="font-weight:700;color:#0c2340;font-size:13px;margin-bottom:6px;font-family:${fam}">📁 Documentación adjunta</div>
-    <div style="font-size:13px;color:#334155;line-height:1.9">${docBullets}</div></td></tr>
-  <tr><td style="padding:14px 28px 4px">
-    <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px 14px">
-      <div style="font-weight:700;color:#0c4a6e;font-size:12.5px;margin-bottom:3px;font-family:${fam}">📞 Ante una emergencia en su hogar</div>
-      <div style="font-size:12.5px;color:#334155;line-height:1.6">Asistencia Hogar 24/7: <b style="color:#0c2340">800-800-8001</b> &nbsp;·&nbsp; Central INS: <b style="color:#0c2340">2287-6000</b></div></div></td></tr>
+<body style="margin:0;padding:0;background:#F4F7FA;font-family:${F};color:#1B1F23;-webkit-text-size-adjust:100%">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="background:#F4F7FA;padding:26px 0"><tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" border="0" role="presentation" style="background:#ffffff;border:1px solid #DADCE0;border-radius:16px;max-width:600px">
+
+  <!-- filete SDI + barra en dos niveles -->
+  <tr><td style="padding:0;border-radius:16px 16px 0 0;overflow:hidden">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr>
+      <td width="25%" bgcolor="#0369A1" style="background:#0369A1;height:4px;font-size:0;line-height:0">&nbsp;</td>
+      <td width="25%" bgcolor="#0D9488" style="background:#0D9488;height:4px;font-size:0;line-height:0">&nbsp;</td>
+      <td width="25%" bgcolor="#EA580C" style="background:#EA580C;height:4px;font-size:0;line-height:0">&nbsp;</td>
+      <td width="25%" bgcolor="#C9A227" style="background:#C9A227;height:4px;font-size:0;line-height:0">&nbsp;</td>
+    </tr></table></td></tr>
+  <tr><td style="padding:14px 26px;border-bottom:1px solid #EDEFF2">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr>
+      <td valign="middle"><img src="${EMAIL_IMG}/img/ins-logo-tinta.png" alt="Instituto Nacional de Seguros" width="120" height="28" style="display:block;border:0;width:120px;height:28px"></td>
+      <td valign="middle" align="right" style="font-family:${M};font-size:11px;color:#6B7681;white-space:nowrap">${derecha}</td>
+    </tr></table></td></tr>
+  <tr><td style="padding:11px 26px;border-bottom:1px solid #EDEFF2">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr>
+      <td valign="middle" style="font-size:18px;font-weight:bold;color:#1B1F23;letter-spacing:-.02em">Hogar Comprensivo</td>
+      <td valign="middle" align="right" style="font-size:12px;color:#6B7681">Seguro integral de hogar &middot; INS Costa Rica</td>
+    </tr></table></td></tr>
+
+  <!-- titular -->
+  <tr><td align="center" style="padding:36px 34px 28px">
+    <table cellpadding="0" cellspacing="0" border="0" role="presentation" align="center" style="margin:0 auto 18px"><tr>
+      <td bgcolor="#E9F5F0" style="background:#E9F5F0;border-radius:999px;padding:7px 15px;font-size:12px;font-weight:bold;color:#037D61;white-space:nowrap">&bull;&nbsp; P&oacute;liza activa</td></tr></table>
+    <h1 style="margin:0;font-size:28px;line-height:1.15;font-weight:bold;color:#1B1F23;letter-spacing:-.02em">Su p&oacute;liza Hogar Comprensivo ya est&aacute; activa</h1>
+    <p style="margin:14px auto 0;font-size:15px;line-height:1.6;color:#5A6570;max-width:440px">${nombre?esc(nombre)+', es':'Es'} un gusto saludarle. Le confirmo que su p&oacute;liza${d.poliza?(' <b style="color:#1B1F23">N.&ordm; '+esc(d.poliza)+'</b>'):''}${ubic?(', que protege su propiedad en <b style="color:#1B1F23">'+esc(titleCase(ubic))+'</b>'):''}, ya se encuentra vigente.</p>
+  </td></tr>
+
+  <!-- datos de la póliza -->
+  ${(vig||d.suma!=null)?`<tr><td bgcolor="#EEF4F9" style="background:#EEF4F9;padding:22px 28px">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="background:#ffffff;border:1px solid #DADCE0;border-radius:20px"><tr>
+      ${d.suma!=null?`<td style="padding:18px 22px 16px;vertical-align:top"><p style="margin:0 0 4px;font-size:12px;color:#6B7681">Suma asegurada</p><p style="margin:0;font-family:${M};font-size:24px;font-weight:bold;color:#1B1F23;letter-spacing:-.02em;line-height:1.1">${esc(fmtCRC(d.suma))}</p></td>`:''}
+      ${vig?`<td style="padding:18px 22px 16px;vertical-align:top" align="right"><p style="margin:0 0 4px;font-size:12px;color:#6B7681">Vigencia</p><p style="margin:0;font-family:${M};font-size:13px;font-weight:bold;color:#1B1F23;white-space:nowrap">${esc(vig)}</p></td>`:''}
+    </tr></table></td></tr>`:''}
+
+  <!-- coberturas -->
+  <tr><td style="padding:26px 28px 4px">${regla}${kicker('QU&Eacute; PROTEGE SU P&Oacute;LIZA')}
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">${covRows}</table></td></tr>
+
+  <!-- asistencia incluida -->
+  <tr><td style="padding:26px 28px 4px">${regla}${kicker('ASISTENCIA INCLUIDA')}
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="border:1px solid #DADCE0;border-radius:16px"><tr><td style="padding:14px 16px">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr>
+        <td style="font-size:14px;font-weight:bold;color:#1B1F23">${esc(inc.n)}</td>
+        <td align="right"><span style="display:inline-block;background:#E9F5F0;color:#037D61;border-radius:999px;padding:4px 11px;font-size:11px;font-weight:bold;white-space:nowrap">&bull;&nbsp; Incluida</span></td></tr></table>
+      <p style="margin:6px 0 10px;font-size:12.5px;color:#5A6570;line-height:1.55">${esc(inc.d)} El INS coordina y paga el servicio; eventos por a&ntilde;o &middot; l&iacute;mite por evento.</p>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">${svRows}</table>
+      <p style="margin:10px 0 0;font-size:11px;color:#6B7681;line-height:1.5">${esc(inc.nota)}</p>
+    </td></tr></table></td></tr>
+
+  <!-- documentación -->
+  <tr><td style="padding:26px 28px 4px">${regla}${kicker('DOCUMENTACI&Oacute;N ADJUNTA')}${docBullets}</td></tr>
+
+  <!-- emergencias: la única caja de su zona, cifras grandes en tinta -->
+  <tr><td style="padding:26px 28px 4px">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="background:#EEF4F9;border-radius:20px"><tr><td style="padding:18px 22px 16px">
+      <p style="margin:0 0 10px;font-size:14px;font-weight:bold;color:#1B1F23">Ante una emergencia en su hogar</p>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr>
+        <td style="vertical-align:top;padding-right:16px"><p style="margin:0;font-size:12px;color:#6B7681">Asistencia Hogar, 24 horas, 365 d&iacute;as</p><p style="margin:2px 0 0;font-family:${M};font-size:22px;font-weight:bold;color:#1B1F23;white-space:nowrap">800-800-8001</p></td>
+        <td style="vertical-align:top" align="right"><p style="margin:0;font-size:12px;color:#6B7681">Central INS</p><p style="margin:2px 0 0;font-family:${M};font-size:22px;font-weight:bold;color:#1B1F23;white-space:nowrap">2287-6000</p></td>
+      </tr></table>
+      <p style="margin:10px 0 0;font-size:11.5px;color:#5A6570">Tambi&eacute;n por la App INS M&oacute;vil y WhatsApp.</p>
+    </td></tr></table></td></tr>
+
   ${notaBlock}
-  <tr><td style="padding:20px 28px 0;border-top:1px solid #e0e7ef">
-    <p style="margin:14px 0 0;font-size:13px;color:#475569;line-height:1.5">Quedo a su entera disposición para cualquier consulta. Atentamente,</p>
-    <p style="margin:10px 0 0;font-family:${fam};font-weight:700;color:#0c2340;font-size:14px">${esc(A('name'))}</p>
-    <p style="margin:2px 0 0;font-size:11px;color:#64748b;line-height:1.6">Agente de Seguros Exclusivo · Instituto Nacional de Seguros<br>
-      Licencia SUGESE ${esc(A('lic'))} · Tel: ${esc(A('wa'))}<br>
-      <a href="mailto:${esc(A('email'))}" style="color:#0369a1;text-decoration:none">${esc(A('email'))}</a>${web?(' · '+esc(web)):''}</p></td></tr>
-  <tr><td style="background:#0c2340;color:#cbd5e1;padding:22px 28px;text-align:center">
-    <div style="font-family:${fam};font-weight:500;font-size:26px;letter-spacing:-1px;color:#fff;line-height:1">SDI</div>
-    <p style="margin:8px 0 0;font-size:11.5px;color:#cbd5e1">Plataforma de <b style="color:#fff">Seguros Digitales SDI®</b></p>
-    <p style="margin:6px 0 0;font-size:10px;color:#64748b">© 2026 · Producto del INS · Registro SUGESE G06-44-A01-142</p></td></tr>
+
+  <!-- firma -->
+  <tr><td style="padding:26px 28px 24px">
+    <div style="border-top:1px solid #EDEFF2;padding-top:16px;font-size:12.5px;color:#5A6570;line-height:1.65">
+      Quedo a su entera disposici&oacute;n para cualquier consulta. Atentamente,<br>
+      <b style="color:#1B1F23;font-size:13.5px">${esc(A('name'))}</b><br>
+      Agente de seguros exclusivo &middot; Instituto Nacional de Seguros<br>
+      <span style="font-family:${M};font-size:11.5px">Lic. SUGESE ${esc(A('lic'))}</span> &nbsp;&middot;&nbsp; WhatsApp ${esc(A('wa'))}<br>
+      <a href="mailto:${esc(A('email'))}" style="color:#0369A1;text-decoration:none">${esc(A('email'))}</a>${web?(' &nbsp;&middot;&nbsp; '+esc(web)):''}
+    </div></td></tr>
+
+  <!-- pie -->
+  <tr><td bgcolor="#EEF4F9" style="background:#EEF4F9;padding:20px 28px;text-align:center;border-radius:0 0 16px 16px">
+    <img src="${EMAIL_IMG}/img/sdi-logo-color.png" alt="Seguros Digitales SDI" width="92" height="32" style="display:block;border:0;width:92px;height:32px;margin:0 auto 10px">
+    <p style="margin:0;font-size:12px;color:#5A6570">Plataforma de <b style="color:#1B1F23">Seguros Digitales SDI</b> &middot; producto del <b style="color:#1B1F23">INS</b></p>
+    <p style="margin:6px 0 0;font-size:10.5px;color:#6B7681">&copy; 2026 &middot; Registro SUGESE G06-44-A01-142</p></td></tr>
 </table></td></tr></table></body></html>`;
 }
 
